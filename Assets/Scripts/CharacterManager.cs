@@ -11,45 +11,82 @@ public class CharacterManager : MonoBehaviour {
 	private float Using_AirMultiplier = 1.0f;
 	private int JumpCount = 0;
 	private int NumberOfJumpsAllowed = 2;
+	private bool JumpKeyReleased = true;
 	private bool PlayerDirection = true; // left - false, right - true
 	SpriteRenderer SpriteRendererRef;
+	public string Control_Horizontal = "Horizontal";
+	public string Control_RightAimX = "RightAimX";
+	public string Control_RightAimY = "RightAimY";
+	public string Control_RightTrigger = "RightTrigger";
+	public string Control_Jump = "Jump";
+	public string Control_Reload = "Reload";
 
 	// Gun Related Variables
 	Transform Gunref;
 	Vector2 GunMaxAngle = new Vector2( 80, -80 );
 	private bool TriggerPressed = false;
+	public float GunFireRate = 0.3f;
+	public float GunFireTimer = 0.0f;
+	private bool GunCanFire = true;
+	public int TotalNumberOfBullets = 15;
+	public int NumberOfBullets = 15;
+	private bool PlayerReloading = false;
+	public float PlayerReloadingTime = 2.0f;
+	public float PlayerReloadingTimer = 0.0f;
 
 	void Awake() {
 
+		// Players must always be spawned in the air (and drop down)
 		// Movement related variables
 		Rigidbody2DRef = this.GetComponent<Rigidbody2D>();
 		Using_AirMultiplier = AirMultiplier;
-		JumpCount = 0;
-		NumberOfJumpsAllowed = 2;
 		SpriteRendererRef = this.GetComponent<SpriteRenderer> ();
 
 		// Gun related variables
 		Gunref = this.gameObject.transform.GetChild(0);
-		TriggerPressed = false;
 	}
 
 	// Update is called once per frame
 	void Update () {
 
-		// Horizontal movement
-		MovePlayer(Input.GetAxis ("Horizontal") );
-
-		SetPlayerDirection ( Input.GetAxis ("Horizontal") );
-
-		// Player jumping
-		if (Input.GetKeyDown(KeyCode.JoystickButton16) && (NumberOfJumpsAllowed > JumpCount)) {
-			JumpPlayer ();
+		// Update gun firing
+		if ( !GunCanFire ) {
+			GunFireTimer += Time.deltaTime;
+			if ( GunFireTimer >= GunFireRate ) {
+				GunCanFire = true;
+			}
 		}
 
-		// Gun aim
-		if ( Input.GetAxis("RightAimX")!=0 || Input.GetAxis("RightAimY")!=0 ) {
-			float GunAngle = -Mathf.Atan2(Input.GetAxis("RightAimY"), Input.GetAxis("RightAimX")) * 180 / Mathf.PI;
+		// Update gun reloading
+		if ( PlayerReloading ) {
+			PlayerReloadingTimer += Time.deltaTime;
+			if ( PlayerReloadingTimer >= PlayerReloadingTime ) {
+				PlayerReloading = false;
+				NumberOfBullets = TotalNumberOfBullets;
+			}
+		}
+
+		// Horizontal movement
+		MovePlayer(Input.GetAxis (Control_Horizontal) );
+
+		SetPlayerDirection ( Input.GetAxis (Control_Horizontal) );
+
+		// Player jumping
+		if ((Input.GetAxis (Control_Jump) == 1) && (NumberOfJumpsAllowed > JumpCount) && JumpKeyReleased) {
+			JumpPlayer ();
+		} else if (Input.GetAxis (Control_Jump) == 0) {
+			JumpKeyReleased = true;
+		}
+
+		// Gun aim (and firing, through the function)
+		if ( Input.GetAxis(Control_RightAimX)!=0 || Input.GetAxis(Control_RightAimY)!=0 ) {
+			float GunAngle = -Mathf.Atan2(Input.GetAxis(Control_RightAimY), Input.GetAxis(Control_RightAimX)) * 180 / Mathf.PI;
 			AimGun ( GunAngle );
+		}
+
+		// Gun reload button hit
+		if ((Input.GetAxis (Control_Reload) == 1) && (NumberOfBullets < TotalNumberOfBullets)) {
+			ReloadGun ();
 		}
 	}
 
@@ -58,6 +95,8 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void JumpPlayer () {
+
+		JumpKeyReleased = false;
 
 		// Indicate player has jumped
 		JumpCount++;
@@ -86,8 +125,6 @@ public class CharacterManager : MonoBehaviour {
 			}
 		}
 
-//		Vector2 FireDirection = new Vector2 ( Input.GetAxis("RightAimX"), -Input.GetAxis("RightAimY") );
-
 		// Limits the angle player can point gun
 		if ( Arg_GunAngle > GunMaxAngle.x ) {
 			Arg_GunAngle = GunMaxAngle.x;
@@ -106,8 +143,8 @@ public class CharacterManager : MonoBehaviour {
 		Gunref.eulerAngles = new Vector3(0, 0, Arg_GunAngle);
 
 		// Gun Fire (player can only fire gun if they're aiming)
-		if ( (FireDirection.x!= 0 && !TriggerPressed) || 
-			(FireDirection.y!= 1 && TriggerPressed)) {
+		if ( (Input.GetAxis(Control_RightTrigger)!= 0 && !TriggerPressed) || 
+			(Input.GetAxis(Control_RightTrigger)!= 1 && TriggerPressed)) {
 
 			TriggerPressed = true;
 			FireGun ( new Vector2( FireDirection.x, FireDirection.y ) );
@@ -133,11 +170,29 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void FireGun( Vector2 Arg_GunAngle ) {
-		RaycastHit2D hit = Physics2D.Raycast(transform.GetChild(0).GetChild(1).position, Arg_GunAngle);
-		if (hit.collider != null) {
-			Debug.DrawLine( new Vector3( transform.GetChild(0).GetChild(1).position.x, transform.GetChild(0).GetChild(1).position.y, 0 ),
-				new Vector3( hit.point.x, hit.point.y, 0 ), 
-				Color.red);
+
+		if ( GunCanFire && !PlayerReloading && ( NumberOfBullets > 0) ) {
+
+			NumberOfBullets--;
+			GunCanFire = false;
+			GunFireTimer = 0.0f;
+
+			// Use raycasting to determine hits
+			RaycastHit2D hit = Physics2D.Raycast(transform.GetChild(0).GetChild(1).position, Arg_GunAngle);
+			if (hit.collider != null) {
+				Debug.DrawLine( new Vector3( transform.GetChild(0).GetChild(1).position.x, transform.GetChild(0).GetChild(1).position.y, 0),
+					new Vector3( hit.point.x, hit.point.y, 0 ), 
+					Color.red, GunFireRate);
+			}
+
+		// Reload the gun if player tries to shoot and has no bullets
+		} else if ( NumberOfBullets <= 0 && !PlayerReloading ) {
+			ReloadGun ();
 		}
+	}
+
+	void ReloadGun() {
+		PlayerReloading = true;
+		PlayerReloadingTimer = 0.0f;
 	}
 }
