@@ -2,7 +2,10 @@
 using System.Collections;
 
 public class CharacterManager : MonoBehaviour {
-	
+
+	// General variables
+	public string PlayerName = "";
+
 	// Movement variables
 	Rigidbody2D Rigidbody2DRef;
 	public float PlayerSpeed = 40.0f;
@@ -33,8 +36,20 @@ public class CharacterManager : MonoBehaviour {
 	private bool PlayerReloading = false;
 	public float PlayerReloadingTime = 2.0f;
 	public float PlayerReloadingTimer = 0.0f;
+	public float GunDamage = 10.0f;
+
+	// Health related variables
+	public GameObject SpawnPoint;
+	public float MaxHealth = 100.0f;
+	public float CurrentHealth = 100.0f;
+	private bool PlayerAlive = true;
+	public float PlayerRespawnTime = 3.0f;
+	private float PlayerRespawnTimer = 0.0f;
 
 	void Awake() {
+
+		// Player starting position
+		transform.position = SpawnPoint.transform.position;
 
 		// Players must always be spawned in the air (and drop down)
 		// Movement related variables
@@ -63,6 +78,14 @@ public class CharacterManager : MonoBehaviour {
 			if ( PlayerReloadingTimer >= PlayerReloadingTime ) {
 				PlayerReloading = false;
 				NumberOfBullets = TotalNumberOfBullets;
+			}
+		}
+
+		// Update respawning
+		if ( !PlayerAlive ) {
+			PlayerRespawnTimer += Time.deltaTime;
+			if ( PlayerRespawnTimer >= PlayerRespawnTime ) {
+				RespawnPlayer ();
 			}
 		}
 
@@ -183,6 +206,10 @@ public class CharacterManager : MonoBehaviour {
 				Debug.DrawLine( new Vector3( transform.GetChild(0).GetChild(1).position.x, transform.GetChild(0).GetChild(1).position.y, 0),
 					new Vector3( hit.point.x, hit.point.y, 0 ), 
 					Color.red, GunFireRate);
+
+				if ( hit.collider.tag == "Player" ) {
+					hit.collider.GetComponent<CharacterManager> ().TakeDamage ( GunDamage );
+				}
 			}
 
 		// Reload the gun if player tries to shoot and has no bullets
@@ -194,5 +221,33 @@ public class CharacterManager : MonoBehaviour {
 	void ReloadGun() {
 		PlayerReloading = true;
 		PlayerReloadingTimer = 0.0f;
+	}
+
+	public void TakeDamage( float Arg_DamageAmount ) {
+
+		if (CurrentHealth > 0) {
+			CurrentHealth -= Arg_DamageAmount;
+
+			Debug.Log ("Player Health: " + CurrentHealth);
+
+			if ( CurrentHealth <= 0 ) {
+				CurrentHealth = 0;
+				KillPlayer ();
+			}
+		}
+	}
+
+	void KillPlayer () {
+		Debug.Log ("Player Killed");
+		PlayerRespawnTimer = 0.0f;
+		PlayerAlive = false;
+		transform.position = new Vector3( -50.0f, -50.0f, 0 );
+	}
+
+	void RespawnPlayer () {
+		Debug.Log ("Player Respawned");
+		PlayerAlive = true;
+		transform.position = SpawnPoint.transform.position;
+		CurrentHealth = MaxHealth;
 	}
 }
