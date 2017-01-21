@@ -19,6 +19,13 @@ public class GameManager : MonoBehaviour {
 	GUIStyle RedGUIStyle;
 	GUIStyle BlueGUIStyle;
 	GUIStyle StartGUIStyle;
+	GUIStyle NumberGUIStyle;
+
+	private bool GameStartTimerActive = false;
+	private bool GameBeginCalled = false;
+	private float GameStartTime = 4.0f;
+	private float GameHaltTime = 1.0f;
+	private float GameStartTimer = 0.0f;
 
 	void Awake() {
 
@@ -59,6 +66,11 @@ public class GameManager : MonoBehaviour {
 		BlueGUIStyle.normal.textColor = Color.blue;
 		BlueGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
 
+		NumberGUIStyle = new GUIStyle();
+		NumberGUIStyle.fontSize = (int) (Screen.width*0.18f);
+		NumberGUIStyle.normal.textColor = Color.white;
+		NumberGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
+
 		HealthGUIStyle = new GUIStyle();
 		HealthGUIStyle.fontSize = (int) (Screen.width*0.045f);
 		HealthGUIStyle.normal.textColor = Color.white;
@@ -75,6 +87,19 @@ public class GameManager : MonoBehaviour {
 				GUI.Label (new Rect (Screen.width*0.24f, Screen.height*0.49f, 0, 0), "Blue Team Wins", BlueGUIStyle);
 			}
 		} else {
+
+			if ( GameStartTimerActive ) {
+				if (GameStartTimer > 3.0f) {
+					GUI.Label (new Rect (Screen.width*0.25f, Screen.height*0.2f, 0, 0), "Fight!", NumberGUIStyle);
+				} else if (GameStartTimer > 2.0f) {
+					GUI.Label (new Rect (Screen.width*0.46f, Screen.height*0.2f, 0, 0), "1", NumberGUIStyle);
+				} else if (GameStartTimer > 1.0f) {
+					GUI.Label (new Rect (Screen.width*0.445f, Screen.height*0.2f, 0, 0), "2", NumberGUIStyle);
+				} else {
+					GUI.Label (new Rect (Screen.width*0.44f, Screen.height*0.2f, 0, 0), "3", NumberGUIStyle);
+				}
+			}
+
 			for (int i1 = 0; i1 < 4; i1++) {
 				GUI.Label (new Rect (Screen.height*0.2f + Screen.height*0.4f*i1, Screen.height*0.85f, 0.0f, 0.0f), Players [i1].GetComponent<CharacterManager> ().CurrentHealth.ToString () + "%", HealthGUIStyle);
 			}
@@ -84,11 +109,22 @@ public class GameManager : MonoBehaviour {
 	void Update () {
 
 		if ( Input.GetAxis ("StartButton") == 1 && GameState == 0 ) {
-			BeginGame ();
+			StartGame ();
+		}
+
+		if ( GameStartTimerActive ) {
+			GameStartTimer += Time.deltaTime;
+			if ( GameStartTimer >= GameHaltTime && !GameBeginCalled ) {
+				GameBeginCalled = true;
+				BeginGame ();
+			}
+			if ( GameStartTimer >= GameStartTime ) {
+				GameStartTimerActive = false;
+			}
 		}
 	}
-		
-	void BeginGame() {
+
+	void StartGame(  ) {
 
 		// Set new game state
 		GameState = 1;
@@ -103,7 +139,12 @@ public class GameManager : MonoBehaviour {
 		TheBomb.GetComponent<Rigidbody2D>().isKinematic = false;
 		TheBomb.GetComponent<BoxCollider2D>().enabled = true;
 
-		// Enable player control
+		GameStartTimerActive = true;
+		GameBeginCalled = false;
+		GameStartTimer = 0.0f;
+	}
+
+	void BeginGame() {
 
 		// Spawn all players
 		foreach (GameObject player in Players) {
@@ -112,8 +153,6 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void Endgame () {
-		
-		// Disable player control
 
 		// Reset game state
 		GameState = 0;

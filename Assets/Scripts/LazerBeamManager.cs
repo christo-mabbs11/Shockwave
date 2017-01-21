@@ -3,7 +3,7 @@ using System.Collections;
 
 public class LazerBeamManager : MonoBehaviour {
 
-	private float LifeTime = 0.1f;
+	private float LifeTime = 0.05f;
 	private float LifeTimer = 0.0f;
 
 	// Update is called once per frame
