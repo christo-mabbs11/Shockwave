@@ -17,10 +17,10 @@ public class CharacterManager : MonoBehaviour {
 	private bool RightTriggerPressed = false;
 
 	// Movement variables
-	Rigidbody2D Rigidbody2DRef;
-	public float PlayerSpeed = 40.0f;
-	public float JumpForce = 30.0f;
-	public float AirMultiplier = 0.5f;
+	private Rigidbody2D Rigidbody2DRef;
+	private float PlayerSpeed = 4000.0f;
+	private float JumpForce = 2500.0f;
+	private float AirMultiplier = 0.5f;
 	private float Using_AirMultiplier = 1.0f;
 	private int JumpCount = 0;
 	private int NumberOfJumpsAllowed = 2;
@@ -31,35 +31,35 @@ public class CharacterManager : MonoBehaviour {
 	// Gun Related Variables
 	Transform Gunref;
 	Vector2 GunMaxAngle = new Vector2( 80, -80 );
-	public float GunFireRate = 0.3f;
-	public float GunFireTimer = 0.0f;
+	private float GunFireRate = 0.3f;
+	private float GunFireTimer = 0.0f;
 	private bool GunCanFire = true;
-	public int TotalNumberOfBullets = 15;
-	public int NumberOfBullets = 15;
+	private int TotalNumberOfBullets = 15;
+	private int NumberOfBullets = 15;
 	private bool PlayerReloading = false;
-	public float PlayerReloadingTime = 2.0f;
-	public float PlayerReloadingTimer = 0.0f;
-	public float GunDamage = 10.0f;
+	private float PlayerReloadingTime = 2.0f;
+	private float PlayerReloadingTimer = 0.0f;
+	private float GunDamage = 25.0f;
 
 	// Grenade related variables
 	private bool CanThrowGrenade = true;
 	private bool GrenadeCooldownOff = true;
 	public GameObject Grenade;
-	public float GrenadeThrowForce = 10.0f;
-	public float GrenadeCooldownTime = 3.0f;
-	public float GrenadeCooldownTimer = 0.0f;
+	private float GrenadeThrowForce = 10.0f;
+	private float GrenadeCooldownTime = 3.0f;
+	private float GrenadeCooldownTimer = 0.0f;
 
 	// Health related variables
 	public GameObject SpawnPoint;
-	public float MaxHealth = 100.0f;
-	public float CurrentHealth = 0.0f;
+	private float MaxHealth = 100.0f;
+	private float CurrentHealth = 0.0f;
 	private bool PlayerAlive = true;
-	public float PlayerRespawnTime = 3.0f;
+	private float PlayerRespawnTime = 3.0f;
 	private float PlayerRespawnTimer = 0.0f;
 
 	// Bomb related mechanics
 	private bool PlayerCarryingBomb = false;
-	public float BombThrowForce = 10.0f;
+	private float BombThrowForce = 10.0f;
 	private GameObject BombRef;
 	private float BombSlowMulitplier = 0.65f;
 
@@ -177,6 +177,8 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D( Collider2D other ) {
+
+		// Allows player to jump
 		if ( other.gameObject.tag == "Ground" ) {
 			Using_AirMultiplier = 1.0f;
 			JumpCount = 0;
@@ -188,6 +190,11 @@ public class CharacterManager : MonoBehaviour {
 			if ( other.gameObject.GetComponent<BombPlantManager>().TeamName != TeamName ) {
 				PlantTheBomb ( other.gameObject );
 			}
+		}
+
+		// Kills player if they're out of the boundary
+		if ( other.gameObject.tag == "DieBox" ) {
+			KillPlayer ();
 		}
 	}
 
@@ -351,9 +358,15 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	public void KillPlayer () {
+
+		// Drop the bomb if they have it
+		if ( PlayerCarryingBomb ) {
+			DropBomb ();
+		}
+
 		PlayerRespawnTimer = 0.0f;
 		PlayerAlive = false;
-		transform.position = new Vector3( -50.0f, -50.0f, 0 );
+		transform.position = new Vector3( 4000.0f, 4000.0f, 0 );
 	}
 
 	void RespawnPlayer () {
@@ -403,7 +416,7 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void ThrowBomb( Vector2 Arg_BombAngle ) {
-			
+
 		// Indicate player is no longer holding the bomb
 		PlayerCarryingBomb = false;
 
@@ -425,6 +438,22 @@ public class CharacterManager : MonoBehaviour {
 
 		// Add force to the bomb
 		BombRef.GetComponent<Rigidbody2D>().AddForce( BombThrowForce * Arg_BombAngle, ForceMode2D.Impulse );
+
+		// Make the gun re-appear
+		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+	}
+
+	void DropBomb( ) {
+
+		// Indicate player is no longer holding the bomb
+		PlayerCarryingBomb = false;
+
+		// Remove this object as the bombs parent
+		BombRef.transform.parent = null;
+
+		// Enable Rigidbody and collider
+		BombRef.GetComponent<Rigidbody2D>().isKinematic = false;
+		BombRef.GetComponent<CircleCollider2D>().enabled = true;
 
 		// Make the gun re-appear
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
