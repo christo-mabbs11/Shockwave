@@ -58,6 +58,8 @@ public class CharacterManager : MonoBehaviour {
 	private bool PlayerCarryingBomb = false;
 	public float BombThrowForce = 10.0f;
 	private GameObject BombRef;
+	public float GrenadeCooldownTime = 3.0f;
+	public float GrenadeCooldownTimer = 0.0f;
 
 	void Awake() {
 
@@ -191,10 +193,11 @@ public class CharacterManager : MonoBehaviour {
 			FireDirection = (Vector2)(Quaternion.Euler(0,0,Arg_GunAngle) * Vector2.left);
 		}
 
+		// Set the angle of the gun/aimer
+		Gunref.eulerAngles = new Vector3(0, 0, Arg_GunAngle);
+
 		// If the player is not carrying the bomb
 		if ( !PlayerCarryingBomb ) {
-			// Set the angle of the gun
-			Gunref.eulerAngles = new Vector3(0, 0, Arg_GunAngle);
 
 			// Gun Fire (player can only fire gun if they're aiming)
 			if ( (Input.GetAxis(Control_RightTrigger)!= 0 && !RightTriggerPressed) || 
@@ -346,21 +349,27 @@ public class CharacterManager : MonoBehaviour {
 	void ThrowBomb( Vector2 Arg_BombAngle ) {
 
 		Debug.Log ("Throw the bomb!");
-
-		// Find the bomb starting point
-		Vector3 GrenadeStartingPoint;
-		if ( PlayerDirection ) {
-			GrenadeStartingPoint = transform.GetChild (0).GetChild (1).position + Vector3.right * 2.0f;
-		} else {
-			GrenadeStartingPoint = transform.GetChild(0).GetChild(1).position + Vector3.left * 2.0f;
-
-		}
 			
+		// Remove this object as the bombs parent
+		BombRef.transform.parent = null;
+
+		// Set the bomb starting point
+		Vector3 BombStartingPoint;
+		if ( PlayerDirection ) {
+			BombStartingPoint = transform.GetChild (0).GetChild(1).position + Vector3.right * 2.0f;
+		} else {
+			BombStartingPoint = transform.GetChild(0).GetChild(1).position + Vector3.left * 2.0f;
+		}
+		BombRef.transform.position = BombStartingPoint;
+
 		// Enable Rigidbody and collider
 		BombRef.GetComponent<Rigidbody2D>().isKinematic = false;
 		BombRef.GetComponent<CircleCollider2D>().enabled = true;
 
 		// Add force to the bomb
 		BombRef.GetComponent<Rigidbody2D>().AddForce( BombThrowForce * Arg_BombAngle, ForceMode2D.Impulse );
+
+		// Make the gun re-appear
+		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
 	}
 }

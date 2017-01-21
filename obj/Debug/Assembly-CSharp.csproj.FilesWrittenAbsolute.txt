@@ -11,3 +11,7 @@
 /Users/Christo/Desktop/Shooter/Temp/bin/Debug/Unity.CecilTools.dll
 /Users/Christo/Desktop/Shooter/Temp/bin/Debug/Mono.Cecil.Pdb.dll
 /Users/Christo/Desktop/Shooter/Temp/bin/Debug/Mono.Cecil.Mdb.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Assembly-CSharp.dll.mdb
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Assembly-CSharp.dll
+/Users/Christo/Desktop/Shooter/obj/Debug/Assembly-CSharp.dll
+/Users/Christo/Desktop/Shooter/obj/Debug/Assembly-CSharp.dll.mdb
