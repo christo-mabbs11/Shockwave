@@ -14,6 +14,8 @@ public class GameManager : MonoBehaviour {
 	GameObject BombSpawn;
 	GameObject[] Players;
 
+	GUIStyle HealthGUIStyle;
+
 	void Awake() {
 
 		// Get handy object references
@@ -32,16 +34,23 @@ public class GameManager : MonoBehaviour {
 				}
 			}
 		}
+
+		HealthGUIStyle = new GUIStyle();
+		HealthGUIStyle.fontSize = 80;
 	}
 
 	void OnGUI() {
-		if ( GameState == 0 ) {
+		if (GameState == 0) {
 			GUI.Label (new Rect (10, 10, 150, 100), "Shockwave");
 			GUI.Label (new Rect (10, 50, 150, 100), "Press Start to begin!");
-			if ( WinningTeam == 1 ) {
+			if (WinningTeam == 1) {
 				GUI.Label (new Rect (10, 30, 150, 100), "Red Team Wins");
-			} else if ( WinningTeam == 2 ) {
+			} else if (WinningTeam == 2) {
 				GUI.Label (new Rect (10, 30, 150, 100), "Blue Team Wins");
+			}
+		} else {
+			for (int i1 = 0; i1 < 4; i1++) {
+				GUI.Label (new Rect (Screen.height*0.2f + Screen.height*0.4f*i1, Screen.height*0.85f, 0.0f, 0.0f), Players [i1].GetComponent<CharacterManager> ().CurrentHealth.ToString () + "%", HealthGUIStyle);
 			}
 		}
 	}
@@ -66,7 +75,7 @@ public class GameManager : MonoBehaviour {
 
 		// Enable Rigidbody and collider
 		TheBomb.GetComponent<Rigidbody2D>().isKinematic = false;
-		TheBomb.GetComponent<CircleCollider2D>().enabled = true;
+		TheBomb.GetComponent<BoxCollider2D>().enabled = true;
 
 		// Enable player control
 

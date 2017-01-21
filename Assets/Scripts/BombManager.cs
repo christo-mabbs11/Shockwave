@@ -19,8 +19,15 @@ public class BombManager : MonoBehaviour {
 		if ( BombResetting ) {
 			BombResetTimer += Time.deltaTime;
 			if ( BombResetTimer > BombResetTime ) {
+				
 				this.transform.position = BombSpawn.transform.position;
 				BombResetting = false;
+
+				// Removes all force when the bomb is reset (sits still)
+				gameObject.GetComponent<Rigidbody2D> ().velocity = Vector2.zero;
+
+				// Bomb starts right way up
+				transform.rotation = Quaternion.identity;
 			}
 		}
 	}

@@ -31,37 +31,45 @@ public class CharacterManager : MonoBehaviour {
 	// Gun Related Variables
 	Transform Gunref;
 	Vector2 GunMaxAngle = new Vector2( 80, -80 );
-	private float GunFireRate = 0.3f;
+	private float GunFireRate = 0.12f;
 	private float GunFireTimer = 0.0f;
 	private bool GunCanFire = true;
-	private int TotalNumberOfBullets = 15;
-	private int NumberOfBullets = 15;
+	private int TotalNumberOfBullets = 30;
+	private int NumberOfBullets = 30;
 	private bool PlayerReloading = false;
-	private float PlayerReloadingTime = 2.0f;
+	private float PlayerReloadingTime = 3.5f;
 	private float PlayerReloadingTimer = 0.0f;
-	private float GunDamage = 25.0f;
+	private float GunDamage = 10.0f;
+	public GameObject HitMark;
+	public GameObject LazerStream;
 
 	// Grenade related variables
 	private bool CanThrowGrenade = true;
 	private bool GrenadeCooldownOff = true;
 	public GameObject Grenade;
-	private float GrenadeThrowForce = 10.0f;
+	private float GrenadeThrowForce = 25.0f;
 	private float GrenadeCooldownTime = 3.0f;
 	private float GrenadeCooldownTimer = 0.0f;
 
 	// Health related variables
 	public GameObject SpawnPoint;
 	private float MaxHealth = 100.0f;
-	private float CurrentHealth = 0.0f;
+	public float CurrentHealth = 0.0f;
 	private bool PlayerAlive = true;
 	private float PlayerRespawnTime = 3.0f;
 	private float PlayerRespawnTimer = 0.0f;
+	private float AddhealthAmount = 25.0f;
 
 	// Bomb related mechanics
 	private bool PlayerCarryingBomb = false;
-	private float BombThrowForce = 10.0f;
+	private float BombThrowForce = 500.0f;
 	private GameObject BombRef;
 	private float BombSlowMulitplier = 0.65f;
+
+	// Grenade hit mechanics
+	private bool GrenadeHit_MovementDisable = false;
+	private float GrenadeHit_DisableTime = 0.85f;
+	private float GrenadeHit_DisableTimer = 0.0f;
 
 	void Awake() {
 
@@ -86,6 +94,15 @@ public class CharacterManager : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+
+		// Update grenade player stun
+		if ( GrenadeHit_MovementDisable ) {
+			GrenadeHit_DisableTimer += Time.deltaTime;
+			if ( GrenadeHit_DisableTimer >= GrenadeHit_DisableTime ) {
+				GrenadeHit_MovementDisable = false;
+				gameObject.GetComponent<Rigidbody2D> ().drag = 2.81f;
+			}
+		}
 
 		// Update gun firing
 		if ( !GunCanFire ) {
@@ -120,33 +137,37 @@ public class CharacterManager : MonoBehaviour {
 			}
 		}
 
-		// Horizontal movement
-		MovePlayer(Input.GetAxis (Control_Horizontal) );
+		// If player isn't stunned
+		if ( !GrenadeHit_MovementDisable ) {
+			
+			// Horizontal movement
+			MovePlayer(Input.GetAxis (Control_Horizontal) );
 
-		SetPlayerDirection ( Input.GetAxis (Control_Horizontal) );
+			SetPlayerDirection ( Input.GetAxis (Control_Horizontal) );
 
-		// Player jumping
-		if ((Input.GetAxis (Control_Jump) == 1) && (NumberOfJumpsAllowed > JumpCount) && JumpKeyReleased) {
-			JumpPlayer ();
-		} else if (Input.GetAxis (Control_Jump) == 0) {
-			JumpKeyReleased = true;
-		}
+			// Player jumping
+			if ((Input.GetAxis (Control_Jump) == 1) && (NumberOfJumpsAllowed > JumpCount) && JumpKeyReleased) {
+				JumpPlayer ();
+			} else if (Input.GetAxis (Control_Jump) == 0) {
+				JumpKeyReleased = true;
+			}
 
-		// Aiming (Find bomb, grenade and firing functions in function called here too...)
-		if ( Input.GetAxis(Control_RightAimX)!=0 || Input.GetAxis(Control_RightAimY)!=0 ) {
-			float AimAngle = -Mathf.Atan2(Input.GetAxis(Control_RightAimY), Input.GetAxis(Control_RightAimX)) * 180 / Mathf.PI;
-			AimStuff ( AimAngle );
-		}
+			// Aiming (Find bomb, grenade and firing functions in function called here too...)
+			if ( Input.GetAxis(Control_RightAimX)!=0 || Input.GetAxis(Control_RightAimY)!=0 ) {
+				float AimAngle = -Mathf.Atan2(Input.GetAxis(Control_RightAimY), Input.GetAxis(Control_RightAimX)) * 180 / Mathf.PI;
+				AimStuff ( AimAngle );
+			}
 
-		// Gun reload button hit
-		if ((Input.GetAxis (Control_Reload) == 1) && (NumberOfBullets < TotalNumberOfBullets)) {
-			ReloadGun ();
-		}
+			// Gun reload button hit
+			if ((Input.GetAxis (Control_Reload) == 1) && (NumberOfBullets < TotalNumberOfBullets)) {
+				ReloadGun ();
+			}
 
-		// Grenade trigger release
-		if ( (Input.GetAxis(Control_LeftTrigger)== 0 && !LeftTriggerPressed) || 
-			(Input.GetAxis(Control_LeftTrigger) == 1 && LeftTriggerPressed)) {
-			CanThrowGrenade = true;
+			// Grenade trigger release
+			if ( (Input.GetAxis(Control_LeftTrigger)== 0 && !LeftTriggerPressed) || 
+				(Input.GetAxis(Control_LeftTrigger) == 1 && LeftTriggerPressed)) {
+				CanThrowGrenade = true;
+			}
 		}
 	}
 		
@@ -242,7 +263,7 @@ public class CharacterManager : MonoBehaviour {
 				(Input.GetAxis(Control_RightTrigger)!= 1 && RightTriggerPressed)) {
 
 				RightTriggerPressed = true;
-				FireGun ( new Vector2( FireDirection.x, FireDirection.y ) );
+				FireGun ( new Vector2( FireDirection.x, FireDirection.y ), Arg_GunAngle );
 			}
 
 			// Grenade Throw
@@ -284,7 +305,7 @@ public class CharacterManager : MonoBehaviour {
 		}
 	}
 
-	void FireGun( Vector2 Arg_GunAngle ) {
+	void FireGun( Vector2 Arg_GunAngle, float Arg_GunAngleFloat ) {
 
 		if ( GunCanFire && !PlayerReloading && ( NumberOfBullets > 0) ) {
 
@@ -298,6 +319,24 @@ public class CharacterManager : MonoBehaviour {
 				Debug.DrawLine( new Vector3( transform.GetChild(0).GetChild(1).position.x, transform.GetChild(0).GetChild(1).position.y, 0),
 					new Vector3( hit.point.x, hit.point.y, 0 ), 
 					Color.red, GunFireRate);
+
+				// Adds hit point on hit point
+				GameObject TempGunMark = (GameObject) Instantiate(HitMark, hit.point, Quaternion.identity);
+
+				// Put lazer beam at the shooting point
+				GameObject TempLazerStream = (GameObject) Instantiate(LazerStream, transform.GetChild(0).GetChild(1).position, Quaternion.identity);
+
+				// Make lazer beam go backwards if player is facing backwards
+				if ( !PlayerDirection ) {
+					TempLazerStream.transform.localScale = new Vector3 ( TempLazerStream.transform.localScale.x*-1, 1.0f, 1.0f );
+				}
+
+				// Make the lazer go the distance
+				float LazerDistance = Vector2.Distance ( hit.point, new Vector2(this.transform.position.x, this.transform.position.y) );
+				TempLazerStream.transform.localScale = new Vector3 ( TempLazerStream.transform.localScale.x*LazerDistance, 1.0f, 1.0f );
+
+				// Rotate laser beam top aim at target
+				TempLazerStream.transform.Rotate( new Vector3( 0, 0, Arg_GunAngleFloat) );
 
 				// If colliding object is a player
 				if ( hit.collider.tag == "Player" ) {
@@ -382,7 +421,7 @@ public class CharacterManager : MonoBehaviour {
 
 		// Disable the collider and rigidbody
 		Arg_TheBomb.GetComponent<Rigidbody2D>().isKinematic = true;
-		Arg_TheBomb.GetComponent<CircleCollider2D>().enabled = false;
+		Arg_TheBomb.GetComponent<BoxCollider2D>().enabled = false;
 
 		// Set this transform as the parent of the bomb
 		Arg_TheBomb.transform.SetParent( this.transform );
@@ -420,6 +459,9 @@ public class CharacterManager : MonoBehaviour {
 		// Indicate player is no longer holding the bomb
 		PlayerCarryingBomb = false;
 
+		// Indicate the player cannot throw grenades now either
+		CanThrowGrenade = false;
+
 		// Remove this object as the bombs parent
 		BombRef.transform.parent = null;
 
@@ -434,7 +476,7 @@ public class CharacterManager : MonoBehaviour {
 
 		// Enable Rigidbody and collider
 		BombRef.GetComponent<Rigidbody2D>().isKinematic = false;
-		BombRef.GetComponent<CircleCollider2D>().enabled = true;
+		BombRef.GetComponent<BoxCollider2D>().enabled = true;
 
 		// Add force to the bomb
 		BombRef.GetComponent<Rigidbody2D>().AddForce( BombThrowForce * Arg_BombAngle, ForceMode2D.Impulse );
@@ -453,9 +495,22 @@ public class CharacterManager : MonoBehaviour {
 
 		// Enable Rigidbody and collider
 		BombRef.GetComponent<Rigidbody2D>().isKinematic = false;
-		BombRef.GetComponent<CircleCollider2D>().enabled = true;
+		BombRef.GetComponent<BoxCollider2D>().enabled = true;
 
 		// Make the gun re-appear
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+	}
+
+	public void GrenadeDisableMovement (  ) {
+		GrenadeHit_MovementDisable = true;
+		GrenadeHit_DisableTimer = 0.0f;
+		gameObject.GetComponent<Rigidbody2D> ().drag = 0.0f;
+	}
+
+	public void AddHealth() {
+		CurrentHealth += AddhealthAmount;
+		if ( CurrentHealth > 100 ) {
+			CurrentHealth = 100;
+		}
 	}
 }
