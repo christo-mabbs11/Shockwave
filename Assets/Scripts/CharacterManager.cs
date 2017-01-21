@@ -43,13 +43,16 @@ public class CharacterManager : MonoBehaviour {
 
 	// Grenade related variables
 	private bool CanThrowGrenade = true;
+	private bool GrenadeCooldownOff = true;
 	public GameObject Grenade;
 	public float GrenadeThrowForce = 10.0f;
+	public float GrenadeCooldownTime = 3.0f;
+	public float GrenadeCooldownTimer = 0.0f;
 
 	// Health related variables
 	public GameObject SpawnPoint;
 	public float MaxHealth = 100.0f;
-	public float CurrentHealth = 100.0f;
+	public float CurrentHealth = 0.0f;
 	private bool PlayerAlive = true;
 	public float PlayerRespawnTime = 3.0f;
 	private float PlayerRespawnTimer = 0.0f;
@@ -58,13 +61,15 @@ public class CharacterManager : MonoBehaviour {
 	private bool PlayerCarryingBomb = false;
 	public float BombThrowForce = 10.0f;
 	private GameObject BombRef;
-	public float GrenadeCooldownTime = 3.0f;
-	public float GrenadeCooldownTimer = 0.0f;
+	private float BombSlowMulitplier = 0.65f;
 
 	void Awake() {
 
-		// Player starting position
-		transform.position = SpawnPoint.transform.position;
+		// Start the player in some random position
+		transform.position = new Vector3( 40000, 40000, 0 );
+
+		// Debug - start the player in their spawn zone
+//		transform.position = SpawnPoint.transform.position;
 
 		// Players must always be spawned in the air (and drop down)
 		// Movement related variables
@@ -107,6 +112,14 @@ public class CharacterManager : MonoBehaviour {
 			}
 		}
 
+		// Update grenade throwing
+		if ( !GrenadeCooldownOff ) {
+			GrenadeCooldownTimer += Time.deltaTime;
+			if ( GrenadeCooldownTimer >= GrenadeCooldownTime ) {
+				GrenadeCooldownOff = true;
+			}
+		}
+
 		// Horizontal movement
 		MovePlayer(Input.GetAxis (Control_Horizontal) );
 
@@ -136,9 +149,17 @@ public class CharacterManager : MonoBehaviour {
 			CanThrowGrenade = true;
 		}
 	}
-
+		
 	void MovePlayer ( float Arg_MoveScale ) {
-		Rigidbody2DRef.AddForce ( new Vector2( PlayerSpeed * Arg_MoveScale * Using_AirMultiplier, 0 ) );
+		
+		if ( PlayerCarryingBomb )  {
+			
+			// player moves more slowly if they have the bomb
+			Rigidbody2DRef.AddForce ( new Vector2( PlayerSpeed * Arg_MoveScale * Using_AirMultiplier * BombSlowMulitplier, 0 ) );
+
+		} else {
+			Rigidbody2DRef.AddForce ( new Vector2( PlayerSpeed * Arg_MoveScale * Using_AirMultiplier, 0 ) );
+		}
 	}
 
 	void JumpPlayer () {
@@ -160,9 +181,19 @@ public class CharacterManager : MonoBehaviour {
 			Using_AirMultiplier = 1.0f;
 			JumpCount = 0;
 		}
+		// if the player has the bomb and walks over the bomb zone
+		if ( other.gameObject.tag == "BombPlant" && PlayerCarryingBomb  ) {
+
+			// Can only plant the bomb in enemy bomb zones
+			if ( other.gameObject.GetComponent<BombPlantManager>().TeamName != TeamName ) {
+				PlantTheBomb ( other.gameObject );
+			}
+		}
 	}
 
 	void OnCollisionEnter2D(Collision2D coll) {
+
+		// if the player walks over the bomb
 		if (coll.gameObject.tag == "Bomb") {
 			PickUpBomb ( coll.gameObject );
 		}
@@ -278,8 +309,12 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void ThrowGrenade( Vector2 Arg_GrenadeAngle ) {
-		if ( CanThrowGrenade ) {
+		if ( CanThrowGrenade && GrenadeCooldownOff ) {
+
+			// Indicate grenade has been thrown
 			CanThrowGrenade = false;
+			GrenadeCooldownOff = false;
+			GrenadeCooldownTimer = 0.0f;
 
 			// Find the grenade starting point
 			Vector3 GrenadeStartingPoint;
@@ -315,7 +350,7 @@ public class CharacterManager : MonoBehaviour {
 		}
 	}
 
-	void KillPlayer () {
+	public void KillPlayer () {
 		PlayerRespawnTimer = 0.0f;
 		PlayerAlive = false;
 		transform.position = new Vector3( -50.0f, -50.0f, 0 );
@@ -346,10 +381,32 @@ public class CharacterManager : MonoBehaviour {
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = false;
 	}
 
-	void ThrowBomb( Vector2 Arg_BombAngle ) {
+	void PlantTheBomb ( GameObject Arg_BombPlant ) {
 
-		Debug.Log ("Throw the bomb!");
+		// Indicate player is no longer holding the bomb
+		PlayerCarryingBomb = false;
+
+		// Set the bomb's parent as the bomb planting point
+		BombRef.transform.parent = Arg_BombPlant.transform;
+
+		// Put the bomb into a position
+		BombRef.transform.localPosition = new Vector3( -0.08f, 0.98f, 0 );
+
+		// Indicate the bomb has been planted
+		Arg_BombPlant.gameObject.GetComponent<BombPlantManager>().BombPlanted();
+
+		// Indicate the player is not carrying the bomb
+		PlayerCarryingBomb = false;
+
+		// Make the player gun re-appear
+		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+	}
+
+	void ThrowBomb( Vector2 Arg_BombAngle ) {
 			
+		// Indicate player is no longer holding the bomb
+		PlayerCarryingBomb = false;
+
 		// Remove this object as the bombs parent
 		BombRef.transform.parent = null;
 
