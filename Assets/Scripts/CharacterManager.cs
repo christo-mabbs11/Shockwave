@@ -5,6 +5,7 @@ public class CharacterManager : MonoBehaviour {
 
 	// General variables
 	public string PlayerName = "";
+	public string TeamName = "";
 
 	// Movement variables
 	Rigidbody2D Rigidbody2DRef;
@@ -207,8 +208,13 @@ public class CharacterManager : MonoBehaviour {
 					new Vector3( hit.point.x, hit.point.y, 0 ), 
 					Color.red, GunFireRate);
 
+				// If colliding object is a player
 				if ( hit.collider.tag == "Player" ) {
-					hit.collider.GetComponent<CharacterManager> ().TakeDamage ( GunDamage );
+
+					// Turns off friendly (ignores if the other object is on the same team)
+					if ( hit.collider.GetComponent<CharacterManager>().TeamName != TeamName ) {
+						hit.collider.GetComponent<CharacterManager> ().TakeDamage ( GunDamage );
+					}
 				}
 			}
 
@@ -228,7 +234,7 @@ public class CharacterManager : MonoBehaviour {
 		if (CurrentHealth > 0) {
 			CurrentHealth -= Arg_DamageAmount;
 
-			Debug.Log ("Player Health: " + CurrentHealth);
+			Debug.Log ( PlayerName + ": " + CurrentHealth);
 
 			if ( CurrentHealth <= 0 ) {
 				CurrentHealth = 0;
