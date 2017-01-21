@@ -43,6 +43,7 @@ public class CharacterManager : MonoBehaviour {
 	private float GunDamage = 10.0f;
 	public GameObject HitMark;
 	public GameObject LazerStream;
+	private float AimAngle = 0.0f;
 
 	// Grenade related variables
 	private bool CanThrowGrenade = true;
@@ -157,8 +158,57 @@ public class CharacterManager : MonoBehaviour {
 
 			// Aiming (Find bomb, grenade and firing functions in function called here too...)
 			if ( Input.GetAxis(Control_RightAimX)!=0 || Input.GetAxis(Control_RightAimY)!=0 ) {
-				float AimAngle = -Mathf.Atan2(Input.GetAxis(Control_RightAimY), Input.GetAxis(Control_RightAimX)) * 180 / Mathf.PI;
-				AimStuff ( AimAngle );
+				AimStuff ( -Mathf.Atan2(Input.GetAxis(Control_RightAimY), Input.GetAxis(Control_RightAimX)) * 180 / Mathf.PI );
+			}
+
+			bool TempRightTriggerTest = false;
+			bool TempLeftTrigerTest = false;
+			if ((Input.GetAxis(Control_RightTrigger)!= 0 && !RightTriggerPressed) || 
+				(Input.GetAxis(Control_RightTrigger)!= 1 && RightTriggerPressed)) {
+				TempRightTriggerTest = true;
+			} else if ( (Input.GetAxis(Control_LeftTrigger)!= 0 && !LeftTriggerPressed) || 
+				(Input.GetAxis(Control_LeftTrigger)!= 1 && LeftTriggerPressed) ) {
+				TempLeftTrigerTest = true;
+			}
+
+			// if a trigger is being pressed
+			if ( TempLeftTrigerTest || TempRightTriggerTest ) {
+
+				// Sets the direction (as a vector 2d) of the firing direction
+				Vector2 FireDirection;
+				if (PlayerDirection) {
+					FireDirection = (Vector2)(Quaternion.Euler(0,0,AimAngle) * Vector2.right);
+				} else {
+					FireDirection = (Vector2)(Quaternion.Euler(0,0,AimAngle) * Vector2.left);
+				}
+
+				// If the player is not carrying the bomb
+				if ( !PlayerCarryingBomb ) {
+
+					// Gun Fire (player can only fire gun if they're aiming)
+					if ( TempRightTriggerTest ) {
+
+						RightTriggerPressed = true;
+						FireGun ( new Vector2( FireDirection.x, FireDirection.y ), AimAngle );
+					}
+
+					// Grenade Throw
+					if ( TempLeftTrigerTest ) {
+
+						LeftTriggerPressed = true;
+						ThrowGrenade ( new Vector2( FireDirection.x, FireDirection.y ) );
+					}
+
+					// If the player is carrying the bomb
+				} else {
+
+					// Bomb Throw
+					if (TempLeftTrigerTest) {
+
+						LeftTriggerPressed = true;
+						ThrowBomb ( new Vector2( FireDirection.x, FireDirection.y ) );
+					}
+				}
 			}
 
 			// Gun reload button hit
@@ -252,47 +302,10 @@ public class CharacterManager : MonoBehaviour {
 			Arg_GunAngle = GunMaxAngle.y;
 		}
 
-		// Sets the direction (as a vector 2d) of the firing direction
-		Vector2 FireDirection;
-		if (PlayerDirection) {
-			FireDirection = (Vector2)(Quaternion.Euler(0,0,Arg_GunAngle) * Vector2.right);
-		} else {
-			FireDirection = (Vector2)(Quaternion.Euler(0,0,Arg_GunAngle) * Vector2.left);
-		}
-
 		// Set the angle of the gun/aimer
-		Gunref.eulerAngles = new Vector3(0, 0, Arg_GunAngle);
+		Gunref.eulerAngles = new Vector3(0, 0, AimAngle);
 
-		// If the player is not carrying the bomb
-		if ( !PlayerCarryingBomb ) {
-
-			// Gun Fire (player can only fire gun if they're aiming)
-			if ( (Input.GetAxis(Control_RightTrigger)!= 0 && !RightTriggerPressed) || 
-				(Input.GetAxis(Control_RightTrigger)!= 1 && RightTriggerPressed)) {
-
-				RightTriggerPressed = true;
-				FireGun ( new Vector2( FireDirection.x, FireDirection.y ), Arg_GunAngle );
-			}
-
-			// Grenade Throw
-			if ( (Input.GetAxis(Control_LeftTrigger)!= 0 && !LeftTriggerPressed) || 
-				(Input.GetAxis(Control_LeftTrigger)!= 1 && LeftTriggerPressed)) {
-
-				LeftTriggerPressed = true;
-				ThrowGrenade ( new Vector2( FireDirection.x, FireDirection.y ) );
-			}
-		
-		// If the player is carrying the bomb
-		} else {
-
-			// Bomb Throw
-			if ( (Input.GetAxis(Control_LeftTrigger)!= 0 && !LeftTriggerPressed) || 
-				(Input.GetAxis(Control_LeftTrigger)!= 1 && LeftTriggerPressed)) {
-
-				LeftTriggerPressed = true;
-				ThrowBomb ( new Vector2( FireDirection.x, FireDirection.y ) );
-			}
-		}
+		AimAngle = Arg_GunAngle;
 	}
 
 	void SetPlayerDirection ( float Arg_MoveScale ) {
@@ -367,7 +380,8 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void ThrowGrenade( Vector2 Arg_GrenadeAngle ) {
-		if ( CanThrowGrenade && GrenadeCooldownOff ) {
+		// Player can't throw a grenade while reloading
+		if ( CanThrowGrenade && GrenadeCooldownOff && !PlayerReloading ) {
 
 			// Indicate grenade has been thrown
 			CanThrowGrenade = false;
@@ -392,8 +406,12 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void ReloadGun() {
-		PlayerReloading = true;
-		PlayerReloadingTimer = 0.0f;
+
+		// Player can't reload gun while holding the bomb
+		if ( !PlayerCarryingBomb ) {
+			PlayerReloading = true;
+			PlayerReloadingTimer = 0.0f;
+		}
 	}
 
 	public void TakeDamage( float Arg_DamageAmount ) {
