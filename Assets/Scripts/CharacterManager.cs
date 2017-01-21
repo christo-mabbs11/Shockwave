@@ -6,6 +6,15 @@ public class CharacterManager : MonoBehaviour {
 	// General variables
 	public string PlayerName = "";
 	public string TeamName = "";
+	public string Control_Horizontal = "Horizontal";
+	public string Control_RightAimX = "RightAimX";
+	public string Control_RightAimY = "RightAimY";
+	public string Control_RightTrigger = "RightTrigger";
+	public string Control_LeftTrigger = "LeftTrigger";
+	public string Control_Jump = "Jump";
+	public string Control_Reload = "Reload";
+	private bool LeftTriggerPressed = false;
+	private bool RightTriggerPressed = false;
 
 	// Movement variables
 	Rigidbody2D Rigidbody2DRef;
@@ -18,17 +27,10 @@ public class CharacterManager : MonoBehaviour {
 	private bool JumpKeyReleased = true;
 	private bool PlayerDirection = true; // left - false, right - true
 	SpriteRenderer SpriteRendererRef;
-	public string Control_Horizontal = "Horizontal";
-	public string Control_RightAimX = "RightAimX";
-	public string Control_RightAimY = "RightAimY";
-	public string Control_RightTrigger = "RightTrigger";
-	public string Control_Jump = "Jump";
-	public string Control_Reload = "Reload";
 
 	// Gun Related Variables
 	Transform Gunref;
 	Vector2 GunMaxAngle = new Vector2( 80, -80 );
-	private bool TriggerPressed = false;
 	public float GunFireRate = 0.3f;
 	public float GunFireTimer = 0.0f;
 	private bool GunCanFire = true;
@@ -39,6 +41,11 @@ public class CharacterManager : MonoBehaviour {
 	public float PlayerReloadingTimer = 0.0f;
 	public float GunDamage = 10.0f;
 
+	// Grenade related variables
+	private bool CanThrowGrenade = true;
+	public GameObject Grenade;
+	public float GrenadeThrowForce = 10.0f;
+
 	// Health related variables
 	public GameObject SpawnPoint;
 	public float MaxHealth = 100.0f;
@@ -46,6 +53,11 @@ public class CharacterManager : MonoBehaviour {
 	private bool PlayerAlive = true;
 	public float PlayerRespawnTime = 3.0f;
 	private float PlayerRespawnTimer = 0.0f;
+
+	// Bomb related mechanics
+	private bool PlayerCarryingBomb = false;
+	public float BombThrowForce = 10.0f;
+	private GameObject BombRef;
 
 	void Awake() {
 
@@ -60,6 +72,9 @@ public class CharacterManager : MonoBehaviour {
 
 		// Gun related variables
 		Gunref = this.gameObject.transform.GetChild(0);
+
+		// Get reference to the bomb
+		BombRef = GameObject.FindGameObjectWithTag("Bomb");
 	}
 
 	// Update is called once per frame
@@ -102,15 +117,21 @@ public class CharacterManager : MonoBehaviour {
 			JumpKeyReleased = true;
 		}
 
-		// Gun aim (and firing, through the function)
+		// Aiming (Find bomb, grenade and firing functions in function called here too...)
 		if ( Input.GetAxis(Control_RightAimX)!=0 || Input.GetAxis(Control_RightAimY)!=0 ) {
-			float GunAngle = -Mathf.Atan2(Input.GetAxis(Control_RightAimY), Input.GetAxis(Control_RightAimX)) * 180 / Mathf.PI;
-			AimGun ( GunAngle );
+			float AimAngle = -Mathf.Atan2(Input.GetAxis(Control_RightAimY), Input.GetAxis(Control_RightAimX)) * 180 / Mathf.PI;
+			AimStuff ( AimAngle );
 		}
 
 		// Gun reload button hit
 		if ((Input.GetAxis (Control_Reload) == 1) && (NumberOfBullets < TotalNumberOfBullets)) {
 			ReloadGun ();
+		}
+
+		// Grenade trigger release
+		if ( (Input.GetAxis(Control_LeftTrigger)== 0 && !LeftTriggerPressed) || 
+			(Input.GetAxis(Control_LeftTrigger) == 1 && LeftTriggerPressed)) {
+			CanThrowGrenade = true;
 		}
 	}
 
@@ -139,7 +160,13 @@ public class CharacterManager : MonoBehaviour {
 		}
 	}
 
-	void AimGun ( float Arg_GunAngle ) {
+	void OnCollisionEnter2D(Collision2D coll) {
+		if (coll.gameObject.tag == "Bomb") {
+			PickUpBomb ( coll.gameObject );
+		}
+	}
+
+	void AimStuff ( float Arg_GunAngle ) {
 
 		// If player has switched direction
 		if ( !PlayerDirection ) {
@@ -156,6 +183,7 @@ public class CharacterManager : MonoBehaviour {
 			Arg_GunAngle = GunMaxAngle.y;
 		}
 
+		// Sets the direction (as a vector 2d) of the firing direction
 		Vector2 FireDirection;
 		if (PlayerDirection) {
 			FireDirection = (Vector2)(Quaternion.Euler(0,0,Arg_GunAngle) * Vector2.right);
@@ -163,15 +191,37 @@ public class CharacterManager : MonoBehaviour {
 			FireDirection = (Vector2)(Quaternion.Euler(0,0,Arg_GunAngle) * Vector2.left);
 		}
 
-		// Set the angle of the gun
-		Gunref.eulerAngles = new Vector3(0, 0, Arg_GunAngle);
+		// If the player is not carrying the bomb
+		if ( !PlayerCarryingBomb ) {
+			// Set the angle of the gun
+			Gunref.eulerAngles = new Vector3(0, 0, Arg_GunAngle);
 
-		// Gun Fire (player can only fire gun if they're aiming)
-		if ( (Input.GetAxis(Control_RightTrigger)!= 0 && !TriggerPressed) || 
-			(Input.GetAxis(Control_RightTrigger)!= 1 && TriggerPressed)) {
+			// Gun Fire (player can only fire gun if they're aiming)
+			if ( (Input.GetAxis(Control_RightTrigger)!= 0 && !RightTriggerPressed) || 
+				(Input.GetAxis(Control_RightTrigger)!= 1 && RightTriggerPressed)) {
 
-			TriggerPressed = true;
-			FireGun ( new Vector2( FireDirection.x, FireDirection.y ) );
+				RightTriggerPressed = true;
+				FireGun ( new Vector2( FireDirection.x, FireDirection.y ) );
+			}
+
+			// Grenade Throw
+			if ( (Input.GetAxis(Control_LeftTrigger)!= 0 && !LeftTriggerPressed) || 
+				(Input.GetAxis(Control_LeftTrigger)!= 1 && LeftTriggerPressed)) {
+
+				LeftTriggerPressed = true;
+				ThrowGrenade ( new Vector2( FireDirection.x, FireDirection.y ) );
+			}
+		
+		// If the player is carrying the bomb
+		} else {
+
+			// Bomb Throw
+			if ( (Input.GetAxis(Control_LeftTrigger)!= 0 && !LeftTriggerPressed) || 
+				(Input.GetAxis(Control_LeftTrigger)!= 1 && LeftTriggerPressed)) {
+
+				LeftTriggerPressed = true;
+				ThrowBomb ( new Vector2( FireDirection.x, FireDirection.y ) );
+			}
 		}
 	}
 
@@ -218,9 +268,30 @@ public class CharacterManager : MonoBehaviour {
 				}
 			}
 
-		// Reload the gun if player tries to shoot and has no bullets
+			// Reload the gun if player tries to shoot and has no bullets
 		} else if ( NumberOfBullets <= 0 && !PlayerReloading ) {
 			ReloadGun ();
+		}
+	}
+
+	void ThrowGrenade( Vector2 Arg_GrenadeAngle ) {
+		if ( CanThrowGrenade ) {
+			CanThrowGrenade = false;
+
+			// Find the grenade starting point
+			Vector3 GrenadeStartingPoint;
+			if ( PlayerDirection ) {
+				GrenadeStartingPoint = transform.GetChild (0).GetChild (1).position + Vector3.right * 2.0f;
+			} else {
+				GrenadeStartingPoint = transform.GetChild(0).GetChild(1).position + Vector3.left * 2.0f;
+
+			}
+
+			// Create the grenade object
+			GameObject TempGrenade = (GameObject) Instantiate(Grenade, GrenadeStartingPoint, Quaternion.identity);
+
+			// Add make it thrown
+			TempGrenade.GetComponent<Rigidbody2D>().AddForce( GrenadeThrowForce * Arg_GrenadeAngle, ForceMode2D.Impulse );
 		}
 	}
 
@@ -234,8 +305,6 @@ public class CharacterManager : MonoBehaviour {
 		if (CurrentHealth > 0) {
 			CurrentHealth -= Arg_DamageAmount;
 
-			Debug.Log ( PlayerName + ": " + CurrentHealth);
-
 			if ( CurrentHealth <= 0 ) {
 				CurrentHealth = 0;
 				KillPlayer ();
@@ -244,16 +313,54 @@ public class CharacterManager : MonoBehaviour {
 	}
 
 	void KillPlayer () {
-		Debug.Log ("Player Killed");
 		PlayerRespawnTimer = 0.0f;
 		PlayerAlive = false;
 		transform.position = new Vector3( -50.0f, -50.0f, 0 );
 	}
 
 	void RespawnPlayer () {
-		Debug.Log ("Player Respawned");
 		PlayerAlive = true;
 		transform.position = SpawnPoint.transform.position;
 		CurrentHealth = MaxHealth;
+	}
+
+	void PickUpBomb ( GameObject Arg_TheBomb ) {
+
+		// Indicate the player is carrying the bomb
+		PlayerCarryingBomb = true;
+
+		// Disable the collider and rigidbody
+		Arg_TheBomb.GetComponent<Rigidbody2D>().isKinematic = true;
+		Arg_TheBomb.GetComponent<CircleCollider2D>().enabled = false;
+
+		// Set this transform as the parent of the bomb
+		Arg_TheBomb.transform.SetParent( this.transform );
+
+		// Put the bomb into a position
+		Arg_TheBomb.transform.localPosition = Vector3.zero;
+
+		// Hide the gun object
+		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = false;
+	}
+
+	void ThrowBomb( Vector2 Arg_BombAngle ) {
+
+		Debug.Log ("Throw the bomb!");
+
+		// Find the bomb starting point
+		Vector3 GrenadeStartingPoint;
+		if ( PlayerDirection ) {
+			GrenadeStartingPoint = transform.GetChild (0).GetChild (1).position + Vector3.right * 2.0f;
+		} else {
+			GrenadeStartingPoint = transform.GetChild(0).GetChild(1).position + Vector3.left * 2.0f;
+
+		}
+			
+		// Enable Rigidbody and collider
+		BombRef.GetComponent<Rigidbody2D>().isKinematic = false;
+		BombRef.GetComponent<CircleCollider2D>().enabled = true;
+
+		// Add force to the bomb
+		BombRef.GetComponent<Rigidbody2D>().AddForce( BombThrowForce * Arg_BombAngle, ForceMode2D.Impulse );
 	}
 }

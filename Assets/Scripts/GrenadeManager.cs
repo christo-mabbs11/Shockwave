@@ -10,8 +10,6 @@ public class GrenadeManager : MonoBehaviour {
 	// If the grenade collides with something
 	void OnCollisionEnter2D(Collision2D coll) {
 
-		Debug.Log ("hit!");
-
 		// Loop through all the player objects whithin a certain radius
 		GameObject[] Players = GameObject.FindGameObjectsWithTag("Player");
 		foreach (GameObject player in Players) {
@@ -22,8 +20,12 @@ public class GrenadeManager : MonoBehaviour {
 				Vector2 BlastAngle = new Vector2( player.transform.position.x - this.transform.position.x, player.transform.position.y - this.transform.position.y );
 
 				// Apply blast, scaled for distance
-				player.GetComponent<Rigidbody2D>().AddForce( GrenadePush * (PlayerDistance / GrenadeRadius) * BlastAngle, ForceMode2D.Impulse );
+				player.GetComponent<Rigidbody2D>().AddForce( GrenadePush * (1.0f - PlayerDistance / GrenadeRadius) * BlastAngle, ForceMode2D.Impulse );
+
 			}
 		}
+
+		// Destroy this grenade
+		Destroy (this.gameObject);
 	}
 }
