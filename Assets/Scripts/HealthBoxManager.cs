@@ -9,6 +9,7 @@ public class HealthBoxManager : MonoBehaviour {
 
 	SpriteRenderer SpriteRendererRef;
 	Transform ChildTransformRef;
+	private AudioSource AudioSourceRef;
 
 	// Sin Wave stuff
 	private float amplitudeY = 1.0f;
@@ -19,6 +20,8 @@ public class HealthBoxManager : MonoBehaviour {
 	void Awake () {
 		SpriteRendererRef = this.gameObject.transform.GetChild (0).GetComponent<SpriteRenderer> ();
 		ChildTransformRef = this.gameObject.transform.GetChild (0).GetComponent<Transform> ();
+
+		AudioSourceRef = this.GetComponent<AudioSource> ();
 
 		RandomOffset = (Random.Range(0, 100) * 1.0f)/100.0f;
 	}
@@ -47,6 +50,7 @@ public class HealthBoxManager : MonoBehaviour {
 			HealthBoxAvailable = false;
 			SpriteRendererRef.enabled = false;
 			HealthBoxtimer = 0.0f;
+			AudioSourceRef.Play ();
 		}
 	}
 

@@ -16,6 +16,7 @@ public class CharacterManager : MonoBehaviour {
 	private bool LeftTriggerPressed = false;
 	private bool RightTriggerPressed = false;
 	private GameManager GameManagerRef;
+	private AudioSource LaserSoundRef;
 
 	// Movement variables
 	private Rigidbody2D Rigidbody2DRef;
@@ -23,11 +24,12 @@ public class CharacterManager : MonoBehaviour {
 	private float JumpForce = 2500.0f;
 	private float AirMultiplier = 0.5f;
 	private float Using_AirMultiplier = 1.0f;
-	private int JumpCount = 0;
+	private int JumpCount = 2;
 	private int NumberOfJumpsAllowed = 2;
 	private bool JumpKeyReleased = true;
 	private bool PlayerDirection = true; // left - false, right - true
 	SpriteRenderer SpriteRendererRef;
+	private AudioSource JumpSoundRef;
 
 	// Gun Related Variables
 	Transform Gunref;
@@ -78,14 +80,11 @@ public class CharacterManager : MonoBehaviour {
 		// Start the player in some random position
 		transform.position = new Vector3( 40000, 40000, 0 );
 
-		// Debug - start the player in their spawn zone
-//		transform.position = SpawnPoint.transform.position;
-
-		// Players must always be spawned in the air (and drop down)
-		// Movement related variables
 		Rigidbody2DRef = this.GetComponent<Rigidbody2D>();
 		Using_AirMultiplier = AirMultiplier;
 		SpriteRendererRef = this.GetComponent<SpriteRenderer> ();
+		LaserSoundRef = this.GetComponent<AudioSource> ();
+		JumpSoundRef = this.gameObject.transform.GetChild (1).GetComponent<AudioSource> ();
 
 		// Gun related variables
 		Gunref = this.gameObject.transform.GetChild(0);
@@ -248,6 +247,9 @@ public class CharacterManager : MonoBehaviour {
 
 		// Applies less horizontal force to player as they are jumping
 		Using_AirMultiplier = AirMultiplier;
+
+		// Play Sound
+		JumpSoundRef.Play();
 	}
 
 	void OnTriggerEnter2D( Collider2D other ) {
@@ -372,6 +374,9 @@ public class CharacterManager : MonoBehaviour {
 					}
 				}
 			}
+
+			// Play laser gun noise
+			LaserSoundRef.Play();
 
 			// Reload the gun if player tries to shoot and has no bullets
 		} else if ( NumberOfBullets <= 0 && !PlayerReloading ) {

@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour {
 	private float GameStartTimer = 0.0f;
 
 	private GameObject[] HealthBoxManagerRef;
-	private GameObject DieBoxRef;
+	private GameObject[] DieBoxRef;
 
 	void Awake() {
 
@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour {
 		BombSpawn = GameObject.FindGameObjectWithTag ("BombSpawn");
 		Players = GameObject.FindGameObjectsWithTag("Player");
 		HealthBoxManagerRef = GameObject.FindGameObjectsWithTag("HealthBox");
-		DieBoxRef = GameObject.FindGameObjectWithTag("DieBox");
+		DieBoxRef = GameObject.FindGameObjectsWithTag("DieBox");
 
 		// Set the bomb starting positon
 		TheBomb.transform.position = BombSpawn.transform.position;
@@ -169,7 +169,9 @@ public class GameManager : MonoBehaviour {
 		}
 
 		// Enable Die Boxes
-		DieBoxRef.GetComponent<BoxCollider2D>().enabled = true;
+		foreach (GameObject DieBox in DieBoxRef) {
+			DieBox.GetComponent<BoxCollider2D>().enabled = true;
+		}
 
 	}
 
@@ -179,7 +181,9 @@ public class GameManager : MonoBehaviour {
 		GameState = 0;
 
 		// Disable Die Boxes
-		DieBoxRef.GetComponent<BoxCollider2D>().enabled = false;
+		foreach (GameObject DieBox in DieBoxRef) {
+			DieBox.GetComponent<BoxCollider2D>().enabled = false;
+		}
 
 	}
 }
