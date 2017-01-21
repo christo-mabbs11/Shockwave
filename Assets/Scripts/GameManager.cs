@@ -15,6 +15,10 @@ public class GameManager : MonoBehaviour {
 	GameObject[] Players;
 
 	GUIStyle HealthGUIStyle;
+	GUIStyle TitleGUIStyle;
+	GUIStyle RedGUIStyle;
+	GUIStyle BlueGUIStyle;
+	GUIStyle StartGUIStyle;
 
 	void Awake() {
 
@@ -35,18 +39,40 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
+		TitleGUIStyle = new GUIStyle();
+		TitleGUIStyle.fontSize = (int) (Screen.width*0.08f);
+		TitleGUIStyle.normal.textColor = Color.white;
+		TitleGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
+
+		StartGUIStyle = new GUIStyle();
+		StartGUIStyle.fontSize = (int) (Screen.width*0.04f);
+		StartGUIStyle.normal.textColor = Color.white;
+		StartGUIStyle.font = (Font)Resources.Load<Font>("Fonts/playtime");
+
+		RedGUIStyle = new GUIStyle();
+		RedGUIStyle.fontSize = (int) (Screen.width*0.08f);
+		RedGUIStyle.normal.textColor = Color.red;
+		RedGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
+
+		BlueGUIStyle = new GUIStyle();
+		BlueGUIStyle.fontSize = (int) (Screen.width*0.08f);
+		BlueGUIStyle.normal.textColor = Color.blue;
+		BlueGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
+
 		HealthGUIStyle = new GUIStyle();
-		HealthGUIStyle.fontSize = 80;
+		HealthGUIStyle.fontSize = (int) (Screen.width*0.045f);
+		HealthGUIStyle.normal.textColor = Color.white;
+		HealthGUIStyle.font = (Font)Resources.Load<Font>("Fonts/playtime");
 	}
 
 	void OnGUI() {
 		if (GameState == 0) {
-			GUI.Label (new Rect (10, 10, 150, 100), "Shockwave");
-			GUI.Label (new Rect (10, 50, 150, 100), "Press Start to begin!");
+			GUI.Label (new Rect (Screen.width*0.28f, Screen.height*0.2f, 0, 0), "SHOCKWAVE!", TitleGUIStyle);
+			GUI.Label (new Rect (Screen.width*0.33f, Screen.height*0.73f, 0, 0), "Press Start to begin...", StartGUIStyle);
 			if (WinningTeam == 1) {
-				GUI.Label (new Rect (10, 30, 150, 100), "Red Team Wins");
+				GUI.Label (new Rect (Screen.width*0.24f, Screen.height*0.49f, 0, 0), "Red Team Wins", RedGUIStyle);
 			} else if (WinningTeam == 2) {
-				GUI.Label (new Rect (10, 30, 150, 100), "Blue Team Wins");
+				GUI.Label (new Rect (Screen.width*0.24f, Screen.height*0.49f, 0, 0), "Blue Team Wins", BlueGUIStyle);
 			}
 		} else {
 			for (int i1 = 0; i1 < 4; i1++) {
