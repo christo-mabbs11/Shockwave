@@ -15,6 +15,7 @@ public class CharacterManager : MonoBehaviour {
 	public string Control_Reload = "Reload";
 	private bool LeftTriggerPressed = false;
 	private bool RightTriggerPressed = false;
+	private GameManager GameManagerRef;
 
 	// Movement variables
 	private Rigidbody2D Rigidbody2DRef;
@@ -34,10 +35,10 @@ public class CharacterManager : MonoBehaviour {
 	private float GunFireRate = 0.12f;
 	private float GunFireTimer = 0.0f;
 	private bool GunCanFire = true;
-	private int TotalNumberOfBullets = 30;
-	public int NumberOfBullets = 30;
+	private int TotalNumberOfBullets = 12;
+	public int NumberOfBullets = 12;
 	private bool PlayerReloading = false;
-	private float PlayerReloadingTime = 3.5f;
+	private float PlayerReloadingTime = 1.0f;
 	private float PlayerReloadingTimer = 0.0f;
 	private float GunDamage = 10.0f;
 	public GameObject HitMark;
@@ -90,6 +91,8 @@ public class CharacterManager : MonoBehaviour {
 
 		// Get reference to the bomb
 		BombRef = GameObject.FindGameObjectWithTag("Bomb");
+
+		GameManagerRef = GameObject.FindGameObjectWithTag ("GameManager").GetComponent<GameManager> ();
 	}
 
 	// Update is called once per frame
@@ -210,6 +213,11 @@ public class CharacterManager : MonoBehaviour {
 			// Can only plant the bomb in enemy bomb zones
 			if ( other.gameObject.GetComponent<BombPlantManager>().TeamName != TeamName ) {
 				PlantTheBomb ( other.gameObject );
+				if ( TeamName == "Red" ) {
+					GameManagerRef.WinningTeam = 1;
+				} else if ( TeamName == "Blue" ) {
+					GameManagerRef.WinningTeam = 2;
+				}
 			}
 		}
 
@@ -321,7 +329,11 @@ public class CharacterManager : MonoBehaviour {
 					Color.red, GunFireRate);
 
 				// Adds hit point on hit point
-				GameObject TempGunMark = (GameObject) Instantiate(HitMark, hit.point, Quaternion.identity);
+				// Adds a little randomness to the hit point
+				Vector3 TempHitPoint = hit.point;
+				TempHitPoint.x += ((float)Random.Range (-100,100))/300.0f;
+				TempHitPoint.y += ((float)Random.Range (-100,100))/300.0f;
+				GameObject TempGunMark = (GameObject) Instantiate(HitMark, TempHitPoint, Quaternion.identity);
 
 				// Put lazer beam at the shooting point
 				GameObject TempLazerStream = (GameObject) Instantiate(LazerStream, transform.GetChild(0).GetChild(1).position, Quaternion.identity);

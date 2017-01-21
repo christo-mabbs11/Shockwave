@@ -4,7 +4,7 @@ using System.Collections;
 public class HealthBoxManager : MonoBehaviour {
 
 	private bool HealthBoxAvailable = true;
-	private float HealthBoxtime = 20.0f;
+	public float HealthBoxtime = 10.0f;
 	private float HealthBoxtimer = 0.0f;
 
 	SpriteRenderer SpriteRendererRef;
@@ -48,5 +48,9 @@ public class HealthBoxManager : MonoBehaviour {
 			SpriteRendererRef.enabled = false;
 			HealthBoxtimer = 0.0f;
 		}
+	}
+
+	public void ResetBoxes () {
+		HealthBoxtimer = HealthBoxtime;
 	}
 }

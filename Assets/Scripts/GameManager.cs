@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour {
 	private int GameState = 0;
 
 	// 0 - nobody, 1 - red, 2 - blue
-	private int WinningTeam = 0;
+	public int WinningTeam = 0;
 
 	// References various game objects
 	GameObject TheBomb;
@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour {
 	GUIStyle BlueGUIStyle;
 	GUIStyle StartGUIStyle;
 	GUIStyle NumberGUIStyle;
+	GUIStyle AmmoGUIStyle;
 
 	private bool GameStartTimerActive = false;
 	private bool GameBeginCalled = false;
@@ -27,12 +28,17 @@ public class GameManager : MonoBehaviour {
 	private float GameHaltTime = 1.0f;
 	private float GameStartTimer = 0.0f;
 
+	private GameObject[] HealthBoxManagerRef;
+	private GameObject DieBoxRef;
+
 	void Awake() {
 
 		// Get handy object references
 		TheBomb = GameObject.FindGameObjectWithTag ("Bomb");
 		BombSpawn = GameObject.FindGameObjectWithTag ("BombSpawn");
 		Players = GameObject.FindGameObjectsWithTag("Player");
+		HealthBoxManagerRef = GameObject.FindGameObjectsWithTag("HealthBox");
+		DieBoxRef = GameObject.FindGameObjectWithTag("DieBox");
 
 		// Set the bomb starting positon
 		TheBomb.transform.position = BombSpawn.transform.position;
@@ -71,6 +77,11 @@ public class GameManager : MonoBehaviour {
 		NumberGUIStyle.normal.textColor = Color.white;
 		NumberGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
 
+		AmmoGUIStyle = new GUIStyle();
+		AmmoGUIStyle.fontSize = (int) (Screen.width*0.025f);
+		AmmoGUIStyle.normal.textColor = Color.white;
+		AmmoGUIStyle.font = (Font)Resources.Load<Font>("Fonts/playtime");
+
 		HealthGUIStyle = new GUIStyle();
 		HealthGUIStyle.fontSize = (int) (Screen.width*0.045f);
 		HealthGUIStyle.normal.textColor = Color.white;
@@ -101,7 +112,8 @@ public class GameManager : MonoBehaviour {
 			}
 
 			for (int i1 = 0; i1 < 4; i1++) {
-				GUI.Label (new Rect (Screen.height*0.2f + Screen.height*0.4f*i1, Screen.height*0.85f, 0.0f, 0.0f), Players [i1].GetComponent<CharacterManager> ().CurrentHealth.ToString () + "%", HealthGUIStyle);
+				GUI.Label (new Rect (Screen.width*0.2f + Screen.width*0.2f*i1, Screen.height*0.86f, 0.0f, 0.0f), Players [i1].GetComponent<CharacterManager> ().CurrentHealth.ToString () + "%", HealthGUIStyle);
+				GUI.Label (new Rect (Screen.width*0.2f + Screen.width*0.2f*i1 + Screen.width*0.015f, Screen.height*0.93f, 0.0f, 0.0f), Players [i1].GetComponent<CharacterManager> ().NumberOfBullets.ToString (), AmmoGUIStyle);
 			}
 		}
 	}
@@ -150,12 +162,24 @@ public class GameManager : MonoBehaviour {
 		foreach (GameObject player in Players) {
 			player.GetComponent<CharacterManager> ().KillPlayer ();
 		}
+
+		// Spawn health boxes
+		foreach (GameObject HPBox in HealthBoxManagerRef) {
+			HPBox.GetComponent<HealthBoxManager> ().ResetBoxes ();
+		}
+
+		// Enable Die Boxes
+		DieBoxRef.GetComponent<BoxCollider2D>().enabled = true;
+
 	}
 
 	public void Endgame () {
 
 		// Reset game state
 		GameState = 0;
+
+		// Disable Die Boxes
+		DieBoxRef.GetComponent<BoxCollider2D>().enabled = false;
 
 	}
 }
