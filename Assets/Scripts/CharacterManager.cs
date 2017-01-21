@@ -35,7 +35,7 @@ public class CharacterManager : MonoBehaviour {
 	private float GunFireTimer = 0.0f;
 	private bool GunCanFire = true;
 	private int TotalNumberOfBullets = 30;
-	private int NumberOfBullets = 30;
+	public int NumberOfBullets = 30;
 	private bool PlayerReloading = false;
 	private float PlayerReloadingTime = 3.5f;
 	private float PlayerReloadingTimer = 0.0f;

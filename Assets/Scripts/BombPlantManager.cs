@@ -5,7 +5,7 @@ public class BombPlantManager : MonoBehaviour {
 
 	public string TeamName = "";
 	private float PlantPush = 15000.0f;
-	private float PlantRadius = 50.0f;
+	private float PlantRadius = 100.0f;
 
 	private bool BombTimeActivated = false;
 	private float BombTime = 2.0f;
