@@ -63,6 +63,8 @@ public class CharacterManager : MonoBehaviour {
 	private float PlayerRespawnTime = 3.0f;
 	private float PlayerRespawnTimer = 0.0f;
 	private float AddhealthAmount = 25.0f;
+	private AudioSource DeathSoundRef;
+	public GameObject GhostRef;
 
 	// Bomb related mechanics
 	private bool PlayerCarryingBomb = false;
@@ -85,6 +87,7 @@ public class CharacterManager : MonoBehaviour {
 		SpriteRendererRef = this.GetComponent<SpriteRenderer> ();
 		LaserSoundRef = this.GetComponent<AudioSource> ();
 		JumpSoundRef = this.gameObject.transform.GetChild (1).GetComponent<AudioSource> ();
+		DeathSoundRef = this.gameObject.transform.GetChild (2).GetComponent<AudioSource> ();
 
 		// Gun related variables
 		Gunref = this.gameObject.transform.GetChild(0);
@@ -275,7 +278,7 @@ public class CharacterManager : MonoBehaviour {
 
 		// Kills player if they're out of the boundary
 		if ( other.gameObject.tag == "DieBox" ) {
-			KillPlayer ();
+			TakeDamage (100.0f);
 		}
 	}
 
@@ -427,6 +430,9 @@ public class CharacterManager : MonoBehaviour {
 			if ( CurrentHealth <= 0 ) {
 				CurrentHealth = 0;
 				KillPlayer ();
+
+				// Play death sound
+				DeathSoundRef.Play();
 			}
 		}
 	}
@@ -438,6 +444,9 @@ public class CharacterManager : MonoBehaviour {
 			DropBomb ();
 		}
 
+		// Spawn a ghost
+		Instantiate(GhostRef, transform.position, Quaternion.identity);
+
 		PlayerRespawnTimer = 0.0f;
 		PlayerAlive = false;
 		transform.position = new Vector3( 4000.0f, 4000.0f, 0 );
@@ -447,6 +456,7 @@ public class CharacterManager : MonoBehaviour {
 		PlayerAlive = true;
 		transform.position = SpawnPoint.transform.position;
 		CurrentHealth = MaxHealth;
+		NumberOfBullets = TotalNumberOfBullets;
 	}
 
 	void PickUpBomb ( GameObject Arg_TheBomb ) {
@@ -466,6 +476,13 @@ public class CharacterManager : MonoBehaviour {
 
 		// Hide the gun object
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = false;
+
+		// Make hand bomb appear
+		BombRef.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = false;
+		BombRef.transform.GetChild(1).GetComponent<SpriteRenderer>().enabled = true;
+
+		// Set the bomb to have no rotation
+		BombRef.transform.rotation = Quaternion.identity;
 	}
 
 	void PlantTheBomb ( GameObject Arg_BombPlant ) {
@@ -487,6 +504,10 @@ public class CharacterManager : MonoBehaviour {
 
 		// Make the player gun re-appear
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+
+		// Make normal bomb appear
+		BombRef.transform.GetChild(1).GetComponent<SpriteRenderer>().enabled = false;
+		BombRef.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
 	}
 
 	void ThrowBomb( Vector2 Arg_BombAngle ) {
@@ -518,6 +539,10 @@ public class CharacterManager : MonoBehaviour {
 
 		// Make the gun re-appear
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+
+		// Make the normal bomb appear
+		BombRef.transform.GetChild(1).GetComponent<SpriteRenderer>().enabled = false;
+		BombRef.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
 	}
 
 	void DropBomb( ) {
@@ -534,6 +559,10 @@ public class CharacterManager : MonoBehaviour {
 
 		// Make the gun re-appear
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+
+		// Make the normal bomb appear
+		BombRef.transform.GetChild(1).GetComponent<SpriteRenderer>().enabled = false;
+		BombRef.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
 	}
 
 	public void GrenadeDisableMovement (  ) {
