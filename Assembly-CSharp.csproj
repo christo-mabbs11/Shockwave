@@ -53,6 +53,7 @@
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GhostManager.cs" />
      <Compile Include="Assets\Scripts\GrenadeManager.cs" />
+     <Compile Include="Assets\Scripts\GrenadeNoiseController.cs" />
      <Compile Include="Assets\Scripts\HealthBoxManager.cs" />
      <Compile Include="Assets\Scripts\HitMarkManager.cs" />
      <Compile Include="Assets\Scripts\LazerBeamManager.cs" />

@@ -6,6 +6,8 @@ public class GrenadeManager : MonoBehaviour {
 	public float GrenadePush = 45.0f;
 	public float GrenadeRadius = 10.0f;
 
+	public GameObject GrenadeNoise;
+
 	GameObject BombRef;
 
 	void Awake () {
@@ -30,6 +32,9 @@ public class GrenadeManager : MonoBehaviour {
 
 			// Blow up the bomb
 			BlowObject ( BombRef, GrenadePush * 0.14f );
+
+			// Create noise
+			Instantiate(GrenadeNoise, Vector3.zero, Quaternion.identity);
 
 			// Destroy this grenade
 			Destroy (this.gameObject);
