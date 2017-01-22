@@ -7,38 +7,29 @@ public class GrenadeManager : MonoBehaviour {
 	public float GrenadeRadius = 10.0f;
 
 	public GameObject GrenadeNoise;
-
-	GameObject BombRef;
+	private GameObject BombRef;
 
 	void Awake () {
-
 		BombRef = GameObject.FindGameObjectWithTag ("Bomb");
-
-		// Grenade ignores collisions with the bomb
-		Physics2D.IgnoreCollision(this.gameObject.GetComponent<CircleCollider2D>(), BombRef.GetComponent<BoxCollider2D>());
 	}
 
 	// If the grenade collides with something
 	void OnCollisionEnter2D(Collision2D coll) {
 
-		// Ignores players and the bomb
-		if ( coll.gameObject.tag != "Player" && coll.gameObject.tag != "Bomb" ) {
-
-			// Loop through all the player objects whithin a certain radius
-			GameObject[] Players = GameObject.FindGameObjectsWithTag("Player");
-			foreach (GameObject player in Players) {
-				BlowObject ( player, GrenadePush );
-			}
-
-			// Blow up the bomb
-			BlowObject ( BombRef, GrenadePush * 0.14f );
-
-			// Create noise
-			Instantiate(GrenadeNoise, Vector3.zero, Quaternion.identity);
-
-			// Destroy this grenade
-			Destroy (this.gameObject);
+		// Loop through all the player objects whithin a certain radius
+		GameObject[] Players = GameObject.FindGameObjectsWithTag("Player");
+		foreach (GameObject player in Players) {
+			BlowObject ( player, GrenadePush );
 		}
+
+		// Blow up the bomb
+		BlowObject ( BombRef, GrenadePush * 0.14f );
+
+		// Create noise
+		Instantiate(GrenadeNoise, Vector3.zero, Quaternion.identity);
+
+		// Destroy this grenade
+		Destroy (this.gameObject);
 	}
 
 	void BlowObject ( GameObject Arg_GameObject, float Arg_GrenadePush ) {

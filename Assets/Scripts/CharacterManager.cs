@@ -149,7 +149,7 @@ public class CharacterManager : MonoBehaviour {
 			// Horizontal movement
 			MovePlayer(Input.GetAxis (Control_Horizontal) );
 
-			SetPlayerDirection ( Input.GetAxis (Control_Horizontal) );
+			SetPlayerDirection ( Input.GetAxis (Control_RightAimX) );
 
 			// Player jumping
 			if ((Input.GetAxis (Control_Jump) == 1) && (NumberOfJumpsAllowed > JumpCount) && JumpKeyReleased) {
@@ -301,13 +301,6 @@ public class CharacterManager : MonoBehaviour {
 			if ( Arg_GunAngle >= 180 ) {
 				Arg_GunAngle -= 360;
 			}
-		}
-
-		// Limits the angle player can point gun
-		if ( Arg_GunAngle > GunMaxAngle.x ) {
-			Arg_GunAngle = GunMaxAngle.x;
-		} else if ( Arg_GunAngle < GunMaxAngle.y ) {
-			Arg_GunAngle = GunMaxAngle.y;
 		}
 
 		// Set the angle of the gun/aimer
