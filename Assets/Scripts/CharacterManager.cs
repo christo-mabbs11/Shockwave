@@ -149,7 +149,12 @@ public class CharacterManager : MonoBehaviour {
 			// Horizontal movement
 			MovePlayer(Input.GetAxis (Control_Horizontal) );
 
-			SetPlayerDirection ( Input.GetAxis (Control_RightAimX) );
+			if ( Input.GetAxis (Control_RightAimX) != 0.0f ) {
+				SetPlayerDirection ( Input.GetAxis (Control_RightAimX) );
+			} else if ( Input.GetAxis (Control_Horizontal) != 0.0f ) {
+				SetPlayerDirection ( Input.GetAxis (Control_Horizontal) );
+			}
+
 
 			// Player jumping
 			if ((Input.GetAxis (Control_Jump) == 1) && (NumberOfJumpsAllowed > JumpCount) && JumpKeyReleased) {
@@ -317,6 +322,7 @@ public class CharacterManager : MonoBehaviour {
 			PlayerDirection = false;
 			SpriteRendererRef.flipX = true;
 			Gunref.localScale = new Vector3 (-1, 1, 1);
+			Gunref.rotation = Quaternion.identity;
 
 		// If the player should be facing right
 		} else if ( Arg_MoveScale > 0 && !PlayerDirection ) {
@@ -324,6 +330,7 @@ public class CharacterManager : MonoBehaviour {
 			PlayerDirection = true;
 			SpriteRendererRef.flipX = false;
 			Gunref.localScale = new Vector3 (1, 1, 1);
+			Gunref.rotation = Quaternion.identity;
 		}
 	}
 
