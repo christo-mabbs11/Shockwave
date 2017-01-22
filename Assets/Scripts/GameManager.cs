@@ -64,12 +64,12 @@ public class GameManager : MonoBehaviour {
 
 		RedGUIStyle = new GUIStyle();
 		RedGUIStyle.fontSize = (int) (Screen.width*0.08f);
-		RedGUIStyle.normal.textColor = Color.red;
+		RedGUIStyle.normal.textColor = new Color (198.0f/255.0f,40.0f/255.0f,40.0f/255.0f, 1.0f);
 		RedGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
 
 		BlueGUIStyle = new GUIStyle();
 		BlueGUIStyle.fontSize = (int) (Screen.width*0.08f);
-		BlueGUIStyle.normal.textColor = Color.blue;
+		BlueGUIStyle.normal.textColor =  new Color (21.0f/255.0f,101.0f/255.0f,192.0f/255.0f, 1.0f);
 		BlueGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
 
 		NumberGUIStyle = new GUIStyle();

@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\BombManager.cs" />
      <Compile Include="Assets\Scripts\BombPlantManager.cs" />
      <Compile Include="Assets\Scripts\CharacterManager.cs" />
+     <Compile Include="Assets\Scripts\CloudManager.cs" />
      <Compile Include="Assets\Scripts\DieBoxManager.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GhostManager.cs" />

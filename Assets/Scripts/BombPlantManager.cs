@@ -4,7 +4,7 @@ using System.Collections;
 public class BombPlantManager : MonoBehaviour {
 
 	public string TeamName = "";
-	private float PlantPush = 15000.0f;
+	private float PlantPush = 6000.0f;
 	private float PlantRadius = 100.0f;
 
 	private bool BombTimeActivated = false;

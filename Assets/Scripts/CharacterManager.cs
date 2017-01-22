@@ -62,7 +62,7 @@ public class CharacterManager : MonoBehaviour {
 	private bool PlayerAlive = true;
 	private float PlayerRespawnTime = 3.0f;
 	private float PlayerRespawnTimer = 0.0f;
-	private float AddhealthAmount = 25.0f;
+	private float AddhealthAmount = 100.0f;
 	private AudioSource DeathSoundRef;
 	public GameObject GhostRef;
 
@@ -258,10 +258,18 @@ public class CharacterManager : MonoBehaviour {
 	void OnTriggerEnter2D( Collider2D other ) {
 
 		// Allows player to jump
-		if ( other.gameObject.tag == "Ground" ) {
+		if (other.gameObject.tag == "Ground") {
 			Using_AirMultiplier = 1.0f;
 			JumpCount = 0;
 		}
+
+		// Kills player if they're out of the boundary
+		if ( other.gameObject.tag == "DieBox" ) {
+			TakeDamage (100.0f);
+		}
+	}
+
+	void OnTriggerStay2D ( Collider2D other ) {
 		// if the player has the bomb and walks over the bomb zone
 		if ( other.gameObject.tag == "BombPlant" && PlayerCarryingBomb  ) {
 
@@ -274,11 +282,6 @@ public class CharacterManager : MonoBehaviour {
 					GameManagerRef.WinningTeam = 2;
 				}
 			}
-		}
-
-		// Kills player if they're out of the boundary
-		if ( other.gameObject.tag == "DieBox" ) {
-			TakeDamage (100.0f);
 		}
 	}
 
