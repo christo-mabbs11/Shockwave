@@ -14,16 +14,32 @@ public class BombPlantManager : MonoBehaviour {
 	GameObject GameManagerRef;
 	GameObject[] Players;
 	private AudioSource AudioSourceRef;
+	private AudioSource CountDownRef;
+
+	private bool SecondSound = false;
+	private bool ThirdSound = false;
 
 	void Awake (  ) {
 		GameManagerRef = GameObject.FindGameObjectWithTag ("GameManager");
 		Players = GameObject.FindGameObjectsWithTag("Player");
 		AudioSourceRef = this.GetComponent<AudioSource> ();
+		CountDownRef = transform.GetChild (1).GetComponent<AudioSource> ();
 	}
 
 	void Update () {
 		if ( BombTimeActivated ) {
 			BombTimer += Time.deltaTime;
+
+			if ( !SecondSound && BombTimer > (BombTime*1.0f/3.0f)) {
+				SecondSound = true;
+				CountDownRef.Play ();
+			}
+
+			if ( !ThirdSound && BombTimer > (BombTime*2.0f/3.0f) ) {
+				ThirdSound = true;
+				CountDownRef.Play ();
+			}
+
 			if ( BombTimer >= BombTime ) {
 				BombTimeActivated = false;
 				ExplodePeeps ();
@@ -35,6 +51,7 @@ public class BombPlantManager : MonoBehaviour {
 	public void BombPlanted () {
 		BombTimeActivated = true;
 		BombTimer = 0.0f;
+		CountDownRef.Play ();
 	}
 
 	void ExplodePeeps () {
