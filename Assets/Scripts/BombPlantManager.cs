@@ -13,10 +13,12 @@ public class BombPlantManager : MonoBehaviour {
 
 	GameObject GameManagerRef;
 	GameObject[] Players;
+	private AudioSource AudioSourceRef;
 
 	void Awake (  ) {
 		GameManagerRef = GameObject.FindGameObjectWithTag ("GameManager");
 		Players = GameObject.FindGameObjectsWithTag("Player");
+		AudioSourceRef = this.GetComponent<AudioSource> ();
 	}
 
 	void Update () {
@@ -36,6 +38,8 @@ public class BombPlantManager : MonoBehaviour {
 	}
 
 	void ExplodePeeps () {
+
+		AudioSourceRef.Play ();
 
 		// Loop through all the player objects whithin a certain radius
 		foreach (GameObject player in Players) {

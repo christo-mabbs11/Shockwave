@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour {
 
 		TitleGUIStyle = new GUIStyle();
 		TitleGUIStyle.fontSize = (int) (Screen.width*0.08f);
-		TitleGUIStyle.normal.textColor = Color.white;
+		TitleGUIStyle.normal.textColor = new Color (230.0f/255.0f,230.0f/255.0f,230.0f/255.0f, 1.0f);
 		TitleGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
 
 		StartGUIStyle = new GUIStyle();
@@ -74,7 +74,7 @@ public class GameManager : MonoBehaviour {
 
 		NumberGUIStyle = new GUIStyle();
 		NumberGUIStyle.fontSize = (int) (Screen.width*0.18f);
-		NumberGUIStyle.normal.textColor = Color.white;
+		NumberGUIStyle.normal.textColor = new Color (230.0f/255.0f,230.0f/255.0f,230.0f/255.0f, 1.0f);
 		NumberGUIStyle.font = (Font)Resources.Load<Font>("Fonts/knewave");
 
 		AmmoGUIStyle = new GUIStyle();
