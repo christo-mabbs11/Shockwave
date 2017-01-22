@@ -42,7 +42,7 @@ public class CharacterManager : MonoBehaviour {
 	private bool PlayerReloading = false;
 	private float PlayerReloadingTime = 1.0f;
 	private float PlayerReloadingTimer = 0.0f;
-	private float GunDamage = 10.0f;
+	private float GunDamage = 20.0f;
 	public GameObject HitMark;
 	public GameObject LazerStream;
 	private float AimAngle = 0.0f;

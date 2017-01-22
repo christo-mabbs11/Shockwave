@@ -48,7 +48,14 @@ public class BombPlantManager : MonoBehaviour {
 		}
 	}
 
+
+	void ResetTimer () {
+		SecondSound = false;
+		ThirdSound = false;
+	}
+
 	public void BombPlanted () {
+		ResetTimer ();
 		BombTimeActivated = true;
 		BombTimer = 0.0f;
 		CountDownRef.Play ();

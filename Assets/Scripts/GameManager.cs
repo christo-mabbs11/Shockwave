@@ -31,7 +31,16 @@ public class GameManager : MonoBehaviour {
 	private GameObject[] HealthBoxManagerRef;
 	private GameObject[] DieBoxRef;
 
+	private AudioSource AudioSourceRef;
+	private AudioSource SecondSoundRef;
+	private bool SecondSound = false;
+	private bool ThirdSound = false;
+	private bool FourthSound = false;
+
 	void Awake() {
+
+		AudioSourceRef = this.GetComponent<AudioSource> ();
+		SecondSoundRef = transform.GetChild (0).GetComponent<AudioSource> ();
 
 		// Get handy object references
 		TheBomb = GameObject.FindGameObjectWithTag ("Bomb");
@@ -126,6 +135,23 @@ public class GameManager : MonoBehaviour {
 
 		if ( GameStartTimerActive ) {
 			GameStartTimer += Time.deltaTime;
+
+
+			if ( !SecondSound && GameStartTimer > (GameStartTime*1.0f/4.0f)) {
+				SecondSound = true;
+				AudioSourceRef.Play ();
+			}
+
+			if ( !ThirdSound && GameStartTimer > (GameStartTime*2.0f/4.0f) ) {
+				ThirdSound = true;
+				AudioSourceRef.Play ();
+			}
+
+			if ( !FourthSound && GameStartTimer > (GameStartTime*3.0f/4.0f) ) {
+				FourthSound = true;
+				SecondSoundRef.Play ();
+			}
+
 			if ( GameStartTimer >= GameHaltTime && !GameBeginCalled ) {
 				GameBeginCalled = true;
 				BeginGame ();
@@ -154,6 +180,12 @@ public class GameManager : MonoBehaviour {
 		GameStartTimerActive = true;
 		GameBeginCalled = false;
 		GameStartTimer = 0.0f;
+
+		// Play noise
+		SecondSound = false;
+		ThirdSound = false;
+		FourthSound = false;
+		AudioSourceRef.Play ();
 	}
 
 	void BeginGame() {
