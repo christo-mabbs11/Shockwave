@@ -175,7 +175,7 @@ public class GameManager : MonoBehaviour {
 
 		// Enable Rigidbody and collider
 		TheBomb.GetComponent<Rigidbody2D>().isKinematic = false;
-		TheBomb.GetComponent<BoxCollider2D>().enabled = true;
+		TheBomb.GetComponent<CircleCollider2D>().enabled = true;
 
 		GameStartTimerActive = true;
 		GameBeginCalled = false;
@@ -216,6 +216,5 @@ public class GameManager : MonoBehaviour {
 		foreach (GameObject DieBox in DieBoxRef) {
 			DieBox.GetComponent<BoxCollider2D>().enabled = false;
 		}
-
 	}
 }

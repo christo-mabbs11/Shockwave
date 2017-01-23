@@ -469,7 +469,7 @@ public class CharacterManager : MonoBehaviour {
 
 		// Disable the collider and rigidbody
 		Arg_TheBomb.GetComponent<Rigidbody2D>().isKinematic = true;
-		Arg_TheBomb.GetComponent<BoxCollider2D>().enabled = false;
+		Arg_TheBomb.GetComponent<CircleCollider2D>().enabled = false;
 
 		// Set this transform as the parent of the bomb
 		Arg_TheBomb.transform.SetParent( this.transform );
@@ -535,7 +535,7 @@ public class CharacterManager : MonoBehaviour {
 
 		// Enable Rigidbody and collider
 		BombRef.GetComponent<Rigidbody2D>().isKinematic = false;
-		BombRef.GetComponent<BoxCollider2D>().enabled = true;
+		BombRef.GetComponent<CircleCollider2D>().enabled = true;
 
 		// Add force to the bomb
 		BombRef.GetComponent<Rigidbody2D>().AddForce( BombThrowForce * Arg_BombAngle, ForceMode2D.Impulse );
@@ -558,7 +558,7 @@ public class CharacterManager : MonoBehaviour {
 
 		// Enable Rigidbody and collider
 		BombRef.GetComponent<Rigidbody2D>().isKinematic = false;
-		BombRef.GetComponent<BoxCollider2D>().enabled = true;
+		BombRef.GetComponent<CircleCollider2D>().enabled = true;
 
 		// Make the gun re-appear
 		transform.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().enabled = true;

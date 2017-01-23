@@ -7,6 +7,7 @@ public class GrenadeManager : MonoBehaviour {
 	public float GrenadeRadius = 10.0f;
 
 	public GameObject GrenadeNoise;
+	public GameObject ShockWaveEffect;
 	private GameObject BombRef;
 
 	void Awake () {
@@ -27,6 +28,10 @@ public class GrenadeManager : MonoBehaviour {
 
 		// Create noise
 		Instantiate(GrenadeNoise, Vector3.zero, Quaternion.identity);
+
+		// Create shockwave
+		ShockwaveManager SchockwaveRef = ((GameObject) Instantiate(ShockWaveEffect, this.transform.position, Quaternion.identity)).GetComponent<ShockwaveManager>();
+		SchockwaveRef.SetWaveTime (0.35f);
 
 		// Destroy this grenade
 		Destroy (this.gameObject);

@@ -57,6 +57,7 @@
      <Compile Include="Assets\Scripts\HealthBoxManager.cs" />
      <Compile Include="Assets\Scripts\HitMarkManager.cs" />
      <Compile Include="Assets\Scripts\LazerBeamManager.cs" />
+     <Compile Include="Assets\Scripts\ShockwaveManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

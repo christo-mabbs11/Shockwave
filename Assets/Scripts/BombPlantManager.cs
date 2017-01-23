@@ -19,6 +19,8 @@ public class BombPlantManager : MonoBehaviour {
 	private bool SecondSound = false;
 	private bool ThirdSound = false;
 
+	public GameObject ShockWaveEffect;
+
 	void Awake (  ) {
 		GameManagerRef = GameObject.FindGameObjectWithTag ("GameManager");
 		Players = GameObject.FindGameObjectsWithTag("Player");
@@ -89,5 +91,10 @@ public class BombPlantManager : MonoBehaviour {
 
 			}
 		}
+
+		// Create shockwave
+		ShockwaveManager SchockwaveRef = ((GameObject) Instantiate(ShockWaveEffect, this.transform.position, Quaternion.identity)).GetComponent<ShockwaveManager>();
+		SchockwaveRef.SetWaveTime (0.35f);
+		SchockwaveRef.SetWaveSpeed (8.0f);
 	}
 }
