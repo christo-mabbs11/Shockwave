@@ -263,7 +263,7 @@ public class CharacterManager : MonoBehaviour {
 	void OnTriggerEnter2D( Collider2D other ) {
 
 		// Allows player to jump
-		if (other.gameObject.tag == "Ground") {
+		if (other.gameObject.tag == "Ground" || other.gameObject.tag == "Player") {
 			Using_AirMultiplier = 1.0f;
 			JumpCount = 0;
 		}
