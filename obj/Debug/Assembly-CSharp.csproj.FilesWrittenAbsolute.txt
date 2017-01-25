@@ -1,0 +1,17 @@
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/UnityEngine.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/UnityEditor.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/UnityEngine.UI.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/UnityEngine.Networking.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Mono.Cecil.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Unity.SerializationLogic.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Unity.DataContract.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/ICSharpCode.NRefactory.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Unity.UNetWeaver.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Unity.UNetWeaver.dll.mdb
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Unity.CecilTools.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Mono.Cecil.Pdb.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Mono.Cecil.Mdb.dll
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Assembly-CSharp.dll.mdb
+/Users/Christo/Desktop/Shooter/Temp/bin/Debug/Assembly-CSharp.dll
+/Users/Christo/Desktop/Shooter/obj/Debug/Assembly-CSharp.dll
+/Users/Christo/Desktop/Shooter/obj/Debug/Assembly-CSharp.dll.mdb
