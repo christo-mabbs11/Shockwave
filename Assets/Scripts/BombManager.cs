@@ -25,6 +25,7 @@ public class BombManager : MonoBehaviour {
 
 				// Removes all force when the bomb is reset (sits still)
 				gameObject.GetComponent<Rigidbody2D> ().velocity = Vector2.zero;
+				gameObject.GetComponent<Rigidbody2D> ().angularVelocity = 0.0f;
 
 				// Bomb starts right way up
 				transform.rotation = Quaternion.identity;

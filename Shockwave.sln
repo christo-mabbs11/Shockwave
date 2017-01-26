@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{822B02E1-B751-097D-290E-AAD55252EB81}") = "Shockwave", "Assembly-CSharp.csproj", "{56B26289-2C9C-C011-D6D6-FB35295B6938}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56B26289-2C9C-C011-D6D6-FB35295B6938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56B26289-2C9C-C011-D6D6-FB35295B6938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56B26289-2C9C-C011-D6D6-FB35295B6938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56B26289-2C9C-C011-D6D6-FB35295B6938}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
