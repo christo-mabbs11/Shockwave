@@ -106,7 +106,7 @@ public class CharacterManager : MonoBehaviour {
 			GrenadeHit_DisableTimer += Time.deltaTime;
 			if ( GrenadeHit_DisableTimer >= GrenadeHit_DisableTime ) {
 				GrenadeHit_MovementDisable = false;
-				gameObject.GetComponent<Rigidbody2D> ().drag = 2.81f;
+				Rigidbody2DRef.drag = 2.81f;
 			}
 		}
 
@@ -266,6 +266,9 @@ public class CharacterManager : MonoBehaviour {
 		if (other.gameObject.tag == "Ground" || other.gameObject.tag == "Player") {
 			Using_AirMultiplier = 1.0f;
 			JumpCount = 0;
+			// Set player vertical velocity to 0
+			// Make for consitent jumping 'feeling' when player hits the ground and immeadiatley jumps
+			Rigidbody2DRef.velocity = new Vector2 ( Rigidbody2DRef.velocity.x, 0.0f );
 		}
 
 		// Kills player if they're out of the boundary
